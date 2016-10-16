@@ -275,4 +275,18 @@ The below  is an excerpt from the ease360 example page http://ease360.io/example
      }
 ```
 
+#### Browser support
+
+ease360° works on IE8+ in addition to other modern browsers such as Chrome, Firefox, and Safari.
+
+#### Dependencies
+
+jQuery 1.7
+
+#### License
+
+Copyright (c) 2016 Derek Dintzner
+
+Licensed under the MIT license.
+
 
