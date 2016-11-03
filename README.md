@@ -72,7 +72,7 @@ breakpoint | int |  - | The max value where the breakpoint feature set will stop
 
 Option | Type | Default | Description
 ------ | ---- | ------- | -----------
-timeline.angle | int	| 0	| Returns the current angle. Values can be 0-359. getter
+angle() | int	| 0	| Returns the current angle. Values can be 0-359. getter
 progress | float	| 0	| Returns a 0-1 value on the loading progress of the provided frame set. getter
 physics.damping | float	| 0.95	| Setting a value between 0.85 - 0.98 will create an effect from very firm to very fluid. A value of 1.0 will create a nonstop spin. setter-getter
 
@@ -80,12 +80,13 @@ physics.damping | float	| 0.95	| Setting a value between 0.85 - 0.98 will create
 ### Methods/Events
 
 Method | Parameters | Default | Description
------- | ---- | ------- | -----------
+------ | ---------- | ------- | -----------
+angle() | int | 0 | Sets angle position if  argument is provided. setter
 angleTo(angle, time) | int, float(optional)	|0, 1.0	| Animates sequence to angle. Duration is 1s unless provided.
 angleStep(angle) | int	|0 | Sets angle position.
-angleStep(angle) | int	|0 | Sets angle position.
-
-
+spinOver(speed) | float | 1.0 | Creates a continous play thru on frame set. Speed parameter can be positive or negative. Designed to be used as a rollover effect. 
+spinOut() | none | - | Used to cancel SpinOver() method.
+changeFrame()  |  array, array (required) | - updates the frames with a provided set. *If ease360 was initialized with framesHighDPI, then a 2nd array for highDPI is required.
 ### Callbacks
 
 Method | Description
@@ -166,6 +167,7 @@ The below  is an excerpt from the ease360 example page http://ease360.io/example
            myEase360 = $('#myEase360').ease360({
                 frames: orangeTeapot,  //required
                 framesHighDPI: orangeTeapotRetina,
+                frameDirection: -1,  //our sequence is reversed, so pass -1
                 width : 540,   //required
                 height: 540,   //required
                 backgroundSize: "cover",  

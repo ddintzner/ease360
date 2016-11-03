@@ -8,7 +8,7 @@
 	(____)\_/\_/(____/(____)   (____/ \___/ \__/(_)\____/(____/
 	
 	
-	Version: 0.1.2
+	Version: 0.1.0
     Author: Derek Dintzner
     Company: INNOCEANUSA
     Website: http://ease360.io
@@ -16,165 +16,141 @@
 
  */
 
-(function(factory) {
-    'use strict';
-    if (typeof define === 'function' && define.amd) {
-        define(['jquery'], factory);
-    } else if (typeof exports !== 'undefined') {
-        module.exports = factory(require('jquery'));
-    } else {
-        factory(jQuery);
-    }
 
-}  (function($) {
+
+	 (function($) {
 		
 	   'use strict';
 		
-		var Ease360 = window.Ease360 || {};
+		var ease360 = window.ease360 || {};
 
-	    Ease360 = (function() {
+	    ease360 = (function() {
 		
 			var instanceUid = 0;
+			var  _el, _num; //declare our private variables
 
-			function Ease360 (element, settings, selector) {
 
-				var _ = this,  dataSettings;
+			function ease360 (options, selector) {
 
 				 //set defaults for our initialized defaults
+	  			options.el =  selector;  //assign the element selected into the new object
+	  			options.uid = instanceUid;
+	  			instanceUid ++;
 
 
-				 _.defaults  = {
-					 	
-					 	init: function init() {
-					 		
-					 		//order of init operations
-					 		this.createProperties(),
-					 		this.createImagesSet();	
-					 		this.buildOut();
-					 	},
-						loadcomplete:  false,
-						totalLoaded: 0,
-						totalframes: 360,
-						frameDirection: 1, // negative value will reverse the image sequence the user provides on init
-						startAngle: 0,
-						file: undefined,
-						num: 0,
-						preloadSmart: false,
-						preloadInitial: true,
-						loadingPosition : 0,
-						loadingFramesGoal : 180,  //default value based on .5 loading
-						backgroundSize : "default",  //  same as "stretch" or "cover"
-						backgroundOffsetX : 0,
-						backgroundOffsetY : 0,
-						load : [],
-		                responsive : [],
-		                responsiveActive : 0,
-		                resizeTimer : null,
-						images : [],
-						width: 0,
-						height: 0,
-						frames : [],
-						framesSetActive : 0,
-						framesHighDPI : [],
-						canvas : {},
-						canvasSettings : {},
-						events :  {
-							  // event vars
-		 						startPos :  {"x" : null, "y": null  },
-		 						currentPos  :  {"x" : null, "y": null  },
-		       					prevPos  :  {"x" : null, "y": null  },
-		      					differencePos  : {"x" : null, "y": null  },
-		    					threshold : 2,
-		      					changeFrames : false, 
-								 activatedGestureEvent : false,
-			 					 interactStart :  false,
-			 					mouseEventInterval : undefined	
-						},
-						eventDirection : "left-right",     // or "up-down, "all", "none""
-						timeline :  {
-							   angle : 0,   // t
-				      		   startValue : 0,  //b
-						       endValue : 180,  // c
-						       duration :  0.5,  // d --in frames
-						       durationDefault : 0.5,
-						       timer : 0,
-						       difference : undefined,
-						       activeTween :  false,
-						       directTweenActive :false,
-							   easeInterval : undefined
-						},
-						physics : {
-							 position : 1,  //starting position based on 0 - 3600 
-						      speed : 0,
-						      damping :  0.95,
-						      acceleration : 0,
-						      delta_multiplier :0.8,
-						      positionCap : 3600	
-						},
-						states :   {
-							     factoring : 1, 
-							      firstInteraction :  true,
-								  destroy :  false,
-						      	  status : "init"   // "init", "start", 'active", "stop"
-						},
-						flex : {},
-						progress : 0,
-						updates : undefined,
-						stateUpdate: undefined,
-						progressUpdate :  undefined,
-						angleUpdate : undefined,
-						responsiveUpdate:  undefined,
-						el: selector,  // to be filled when created
-						loadSet :  [],
-				        currentSet : [],
-					    increment : undefined
-					};
-
-					
-					$.extend(_ , _.defaults);
-						  
-
-          			 
-            		$.extend(_ , settings);
-   
-   
-   					_.timeline.angle = _.startAngle;
-					_.initStart(true);
-					  
-				}
-						
-					
-					   return Ease360;
-					   
-		}());
-		
-
-		Ease360.prototype.initStart = function(creation) {
+				var o = $.extend(Object.create(ease360Prototype), options);  //jquery	
+				//return extend(Object.create(ease360Prototype), options);  //no jquery	
 				
-					var _ = this;
+				o.init();
+				
+				return o;
 
-
-				    if (creation) {
-				    	
-			            _.createProperties(),
-					 	_.createImagesSet();	
-					 	_.buildOut();
-			        }
-		}
+			}
+			
+	
+			
+		 var ease360Prototype = {
+			 	
+			 	init: function init() {
+			 		
+			 		//order of init operations
+			 		this.createProperties(),
+			 		this.createImagesSet();	
+			 		this.buildOut();
+			 		
+			 	},
+				loadcomplete:  false,
+				totalLoaded: 0,
+				totalframes: 360,
+				frameDirection: 1, // negative value will reverse the image sequence the user provides on init
+				file: undefined,
+				num: 0,
+				preloadSmart: false,
+				preloadInitial: true,
+				loadingPosition : 0,
+				loadingFramesGoal : 180,  //default value based on .5 loading
+				backgroundSize : "default",  //  same as "stretch" or "cover"
+				backgroundOffsetX : 0,
+				backgroundOffsetY : 0,
+				load : [],
+                responsive : [],
+                responsiveActive : 0,
+                resizeTimer : null,
+				images : [],
+				width: 0,
+				height: 0,
+				frames : [],
+				framesSetActive : 0,
+				framesHighDPI : [],
+				canvas : {},
+				canvasSettings : {},
+				events : {},
+				eventDirection : "left-right",  // or "up-down or "all"
+				timeline : {},
+				physics : {},
+				states : {},
+				flex : {},
+				progress : 0,
+				updates : undefined,
+				stateUpdate: undefined,
+				progressUpdate :  undefined,
+				angleUpdate : undefined,
+				responsiveUpdate:  undefined,
+				el: undefined  // to be filled when created
+				
+			};
 			
 			
+		ease360Prototype.createProperties = function() {
 			
-			
-		Ease360.prototype.createProperties = function() {
-			
-			  
 			   //E V E N T S
       		   var _ = this;
       			
+      		
+		      // event vars
+		      _.events.startPos = {"x" : null, "y": null  };
+		      _.events.currentPos  = {"x" : null, "y": null  };
+		      _.events.prevPos  = {"x" : null, "y": null  };
+		      _.events.differencePos  = {"x" : null, "y": null  };
+		      _.events.threshold = 2;
+		      _.events.changeFrames = false;   
+			  _.events.activatedGestureEvent = false;
+			  _.events.interactStart = false;
+			  _.events.mouseEventInterval;
+			  
 
+		      //states
+		      _.states.factoring = 1; 
+		      _.states.firstInteraction = true;
+			  _.states.destroy = false;
+	      	  _.states.status = "init";   // "init", "start", 'active", "stop"
+	      	  
+	      	  
+	      	  //timeline
+	      	   _.timeline.angle = 0; // t
+      		   _.timeline.startValue = 0; //b
+		       _.timeline.endValue = 180; // c
+		       _.timeline.duration =  0.5; // d --in frames
+		       _.timeline.durationDefault = 0.5;
+		       _.timeline.timer = 0;
+		       _.timeline.difference;
+		       _.timeline.activeTween = false;
+		       _.timeline.directTweenActive = false;
+			   _.timeline.easeInterval;
+        
+		      //physics
+		      _.physics.position = 1;  //starting position based on 0 - 3600 
+		      _.physics.speed = 0;
+		      _.physics.damping = .95;
+		      _.physics.acceleration = 0;
+		      _.physics.delta_multiplier = 0.8;
+		      _.physics.positionCap = 3600;	
+		      
+		      _.loadSet  = [];
+		      _.currentSet = [];
+			  _.increment;
+			  
       			//responsive : create object
-      			
-      			
       			if(_.responsive.length != 0) {
       				
       				      				
@@ -197,10 +173,7 @@
       					if(_.responsive[i].backgroundOffsetX == undefined) _.responsive[i].backgroundOffsetX = _.backgroundOffsetX;
 						if(_.responsive[i].backgroundOffsetY == undefined) _.responsive[i].backgroundOffsetY = _.backgroundOffsetY;
       					if(_.responsive[i].frameDirection  == undefined) _.responsive[i].frameDirection = _.frameDirection;
-      					if(_.responsive[i].startAngle  == undefined) _.responsive[i].startAngle = _.startAngle;
 						if(_.responsive[i].preloadSmart  == undefined) _.responsive[i].preloadSmart = _.preloadSmart;
-
-
 
       				    _.responsive[i].images = [];
       				    _.responsive[i].load = {};
@@ -217,7 +190,9 @@
 	      				    	//list out all the properties for each loadset
 	      				    	
 	      				    }
-
+	      				    
+	      				   
+	      				    
       				    }
       				    
       				
@@ -225,6 +200,8 @@
       				    _.responsive[i].loadingPosition = 0;
       				    _.responsive[i].totalLoaded = 0;
       				    _.responsive[i].currentSet = [];
+      				    //_.responsive[i].increment = 360/_.responsive[i].frames.length;
+      				   //_.responsive[i].totalframes = _.responsive[i].frames.length;
       				    _.responsive[i].activated = false;
       				    
       				}
@@ -285,6 +262,7 @@
       			  _.height = _.responsive[_.responsiveActive].height;
       			  _.width = _.responsive[_.responsiveActive].width;
       			  
+      			  //_.loadSet[_.responsiveActive].increment = _.responsive[_.responsiveActive].increment;
 
 
       				
@@ -308,7 +286,7 @@
 		}
 			
 			
-		 Ease360.prototype.createImagesSet = function(){
+		 ease360Prototype.createImagesSet = function(){
 			
 			var _ = this;
 			
@@ -335,7 +313,7 @@
 		};
 		
 
-		Ease360.prototype.refresh = function() {
+		ease360Prototype.refresh = function() {
 			
 			var _ = this;
 			
@@ -377,7 +355,7 @@
 			
 		}
 			
-		Ease360.prototype.resize = function() {
+		ease360Prototype.resize = function() {
 				
 				 var _ = this;
 
@@ -440,7 +418,7 @@
 				
 		}
 		
-		Ease360.prototype.responsiveInit = function(previousActive) {
+		ease360Prototype.responsiveInit = function(previousActive) {
 				
 				var _ = this;
 
@@ -520,7 +498,6 @@
   	 			 _.totalLoaded = _.responsive[_.responsiveActive].totalLoaded;
 				 _.loadingFramesGoal = _.responsive[_.responsiveActive].loadingFramesGoal;
 		      	 _.frameDirection =  _.responsive[_.responsiveActive].frameDirection; 
-		      	 _.startAngle =  _.responsive[_.responsiveActive].startAngle; 
 		      	 _.totalframes = _.responsive[_.responsiveActive].totalframes;
 		      	 _.loadSet = _.responsive[_.responsiveActive].loadSet;
 		      	 _.currentSet =  _.responsive[_.responsiveActive].currentSet;
@@ -639,7 +616,7 @@
 		
 		
 		
-		Ease360.prototype.preload = function() {
+		ease360Prototype.preload = function() {
 			
 				
 				var _ = this;
@@ -675,8 +652,7 @@
 						
 						_.progress = _.totalLoaded/_.loadingFramesGoal;	
 						_.progress = _.totalLoaded/_.frames.length;		
-													
-
+							
 						//_.progress =  _.newframesloaded/_.currentSet.newframes/;	
 						_.progressUpdateFunc();
 
@@ -694,11 +670,9 @@
 
 								_.loadedSet = _.currentSet;
 								_.canvasSettings = _.canvasMath(_.images[_.timeline.angle]);
-
 								_.canvasDraw(_.images[_.timeline.angle]); //draw the first frame
 								_.loadedSet.totalframes = _.newframesloaded ;
 								_.preloadInitial = false; //
-								_.totalLoaded =  0;  //reset
 								return;
 
 								
@@ -776,7 +750,7 @@
 		
 		
 		
-		Ease360.prototype.initializeEvents = function() {
+		ease360Prototype.initializeEvents = function() {
 
 	         var _ = this;
 	
@@ -794,7 +768,7 @@
 		
 		
 		
-		Ease360.prototype.uninitializeEvents = function() {
+		ease360Prototype.uninitializeEvents = function() {
 
 	         var _ = this;
 	
@@ -806,7 +780,7 @@
 		
 		
 		
-		Ease360.prototype.destroy = function() {
+		ease360Prototype.destroy = function() {
 
 	         var _ = this;
 			
@@ -847,7 +821,7 @@
 		};
 		
 		
-		Ease360.prototype.startInteract = function(e) {
+		ease360Prototype.startInteract = function(e) {
 			
 			
         	var _ = this;
@@ -865,7 +839,7 @@
 		}
 		
 		
-		Ease360.prototype.startMove = function(e) {
+		ease360Prototype.startMove = function(e) {
 			
         	var _ = this;
         	
@@ -892,13 +866,10 @@
   			
 		}
 		
-		Ease360.prototype.moveInteract = function(e) {
+		ease360Prototype.moveInteract = function(e) {
 				
 			  var _ = this;
 				
-			  if(_.events.touchdirection == "none") return;
-			  	
-			  		
 			   //is our mouse down?
 	          if( _.events.startPos.x == null ||  _.events.startPos.y == null  ) return;
 	          
@@ -910,13 +881,13 @@
 	          
 	          if(  _.events.prevPos.x != null ||  _.events.prevPos.y != null ) {
 	              
-	              _.events.differencePos.x =  _.events.currentPos.x - _.events.prevPos.x;
-	              _.events.differencePos.y =  _.events.currentPos.y - _.events.prevPos.y ; 
+	              _.events.differencePos.x = _.events.prevPos.x - _.events.currentPos.x;
+	              _.events.differencePos.y = _.events.prevPos.y - _.events.currentPos.y; 
 	              
 	          } else {
 	              
-	              _.events.differencePos.x =  _.events.currentPos.x - _.events.startPos.x ;
-	              _.events.differencePos.y = _.events.currentPos.y -  _.events.startPos.y ;  
+	              _.events.differencePos.x = _.events.startPos.x - _.events.currentPos.x;
+	              _.events.differencePos.y = _.events.startPos.y - _.events.currentPos.y;  
 	              
 	              
 	              if(_.events.touchdirection == null){
@@ -949,7 +920,7 @@
 		}
 		
 		
-		Ease360.prototype.endInteract = function(e) {
+		ease360Prototype.endInteract = function(e) {
 			
 			var _ = this;
 			
@@ -963,38 +934,38 @@
 		}
 		
 		
-		Ease360.prototype.progressUpdateFunc = function() {
+		ease360Prototype.progressUpdateFunc = function() {
 			
 			var _ = this;
-			if( _.progressUpdate != undefined)  _.progressUpdate(_);	 
+			if( _.progressUpdate != undefined)  _.progressUpdate();	 
 		
 		};
 		
 		
 		
-		Ease360.prototype.angleUpdateFunc = function() {
+		ease360Prototype.angleUpdateFunc = function() {
 			
 			var _ = this;
-			if( _.angleUpdate != undefined) 	 _.angleUpdate(_);
+			if( _.angleUpdate != undefined) 	 _.angleUpdate();
 
 		};
 		
 		
-		Ease360.prototype.stateUpdateFunc = function() {
+		ease360Prototype.stateUpdateFunc = function() {
 			
 			var _ = this;
-			if( _.stateUpdate != undefined)  _.stateUpdate(_);
+			if( _.stateUpdate != undefined)  _.stateUpdate();
 
 		};
 		
-		Ease360.prototype.responsiveUpdateFunc = function() {
+		ease360Prototype.responsiveUpdateFunc = function() {
 			
 			var _ = this;
-			if( _.responsiveUpdate != undefined)  _.responsiveUpdate(_);
+			if( _.responsiveUpdate != undefined)  _.responsiveUpdate();
 
 		};
 		
-		Ease360.prototype.loadSets = function( _ ) {
+		ease360Prototype.loadSets = function( _ ) {
 			
 			//var _ = this;
 			_.totalframes = _.frames.length;  // we know how many frames we have from the list provided
@@ -1022,7 +993,7 @@
 		
 		
 		//create the canvas object
-		Ease360.prototype.buildOut = function(){
+		ease360Prototype.buildOut = function(){
 				
 			
 			var _ = this;
@@ -1056,7 +1027,7 @@
 		}
 	
 	 	//provides all the calculations need for canvas on the 'canvasDraw' method
-		Ease360.prototype.canvasMath = function(img){
+		ease360Prototype.canvasMath = function(img){
 			
 			var _ = this;
 			var sx, sy, sWidth, sHeight;
@@ -1186,7 +1157,7 @@
 				
 		}
 	
-		Ease360.prototype.canvasDraw = function(img){
+		ease360Prototype.canvasDraw = function(img){
 			
 			var _ = this;
 			var sx, sy, sWidth, sHeight;
@@ -1198,9 +1169,6 @@
 		 	img	= _.images[_.timeline.angle]
 		 }
 		 
-		 
-
-
 
 			if( _.states.destroy || _.states.status == "stop") return;
 			
@@ -1225,7 +1193,7 @@
 		
 		
 		
-		Ease360.prototype.engine = function(){
+		ease360Prototype.engine = function(){
 			
 			var _ = this;
 						
@@ -1269,7 +1237,7 @@
 		}
 	
 
-		Ease360.prototype.changeFrames = function(m, n){
+		ease360Prototype.changeFrames = function(m, n){
 			
 
              var _ = this;
@@ -1285,7 +1253,7 @@
             }
            
             
-			//_.images = [];
+			_.images = [];
 			_.loadingPosition = 0;
 
 			//order of init operations
@@ -1296,7 +1264,7 @@
          }
 		
 	
-		Ease360.prototype.angleTo = function(angle, time){
+		ease360Prototype.angleTo = function(angle, time){
 			
           	 
              var _ = this;
@@ -1324,7 +1292,7 @@
          }
     		
     		
-    	Ease360.prototype.angleStep = function(angle){
+    	ease360Prototype.angleStep = function(angle){
 			
           	 
              var _ = this;
@@ -1338,33 +1306,11 @@
 			 if(_.timeline.angle >= 360)   _.timeline.angle -= 360;
 			 if(_.timeline.angle < 0)   _.timeline.angle += 360;
             
-             //set physics engine to synch with new changes
-			 _.physics.position = _.timeline.angle * 10; // give us range yo 3600
-
-             _.states.status = "start";
-             _.stateUpdateFunc();
-             _.canvasDraw(_.images[_.timeline.angle]);
-			 _.angleUpdateFunc();
-             
-
-         }
-         
-         Ease360.prototype.angleSet = function(angle){
-			
-          	 
-             var _ = this;
-             clearInterval(_.timeline.easeInterval);
-             clearInterval(_.events.mouseEventInterval);
-             
-             angle = angle | 0;
-             _.timeline.angle += angle;
-             
-             //if we break the 359 degrees, then we reset back to 0 with offset
-			 _.timeline.angle = angle;
 
              //set physics engine to synch with new changes
 			 _.physics.position = _.timeline.angle * 10; // give us range yo 3600
  
+            
              _.states.status = "start";
              _.stateUpdateFunc();
              _.canvasDraw(_.images[_.timeline.angle]);
@@ -1372,55 +1318,11 @@
              
 
          }
+         
+         
          	
-         	
-		 Ease360.prototype.angle = function(angle){
-			
-          	 
-             var _ = this;
-             
-             var type = ( angle == undefined) ? "get" : "set";
-             
-             
-          
-          	if(type ==  "set" ) {
-          		
-          		clearInterval(_.timeline.easeInterval);
-	             clearInterval(_.events.mouseEventInterval);
-	             
-	            
-	             _.timeline.angle += angle;
-	             
-	             //if we break the 359 degrees, then we reset back to 0 with offset
-				 _.timeline.angle = angle;
-	
-	             //set physics engine to synch with new changes
-				 _.physics.position = _.timeline.angle * 10; // give us range yo 3600
-	 
-	             _.states.status = "start";
-	             _.stateUpdateFunc();
-	             _.canvasDraw(_.images[_.timeline.angle]);
-				 _.angleUpdateFunc();
-          		
-          	} else {
-          		
-          		
-          		return 	 _.timeline.angle
-          		
-          	}
-             
-             
-             
-             
-             
-             
 
-         }
-         
-         
-		
-		
-         Ease360.prototype.spinOver = function(speed){
+         ease360Prototype.spinOver = function(speed){
 			
              var _ = this;
              
@@ -1444,7 +1346,7 @@
          }
          
          
-         Ease360.prototype.spinOut = function(){
+         ease360Prototype.spinOut = function(){
 			
           	 
             var _ = this;
@@ -1463,7 +1365,7 @@
          }
          
          
-         Ease360.prototype.easeOutQuad = function(){  //function easeOutQuad (t, b, c, d) 
+         ease360Prototype.easeOutQuad = function(){  //function easeOutQuad (t, b, c, d) 
 
            var _ = this;
              
@@ -1494,7 +1396,7 @@
         
      
         
-        Ease360.prototype.easeOutCubic = function(){   
+        ease360Prototype.easeOutCubic = function(){   
         	
             var _ = this;
             
@@ -1536,7 +1438,7 @@
          
 
            
-		 Ease360.prototype.stopInterval = function(){   
+		 ease360Prototype.stopInterval = function(){   
 		  	
             var _ = this;
 
@@ -1551,7 +1453,7 @@
         }
 	
 	
-		Ease360.prototype.stopAllIntervals = function(){   
+		ease360Prototype.stopAllIntervals = function(){   
 		  	
             var _ = this;
 
@@ -1566,7 +1468,10 @@
 
         }
 	
-
+	
+	
+	
+	
 		// Utility to mimic jquery extend -without jquery
 			function extend(){
 			    for(var i=1; i<arguments.length; i++)
@@ -1586,31 +1491,18 @@
        		}
        		
 		 	//make it a plugin	
-		 
-			$.fn.ease360 = function() {
-				
-				
-				var _ = this,
-				        opt = arguments[0],
-			            args = Array.prototype.slice.call(arguments, 1),
-			            l = _.length,
-			            i,
-			            ret;
-			        for (i = 0; i < l; i++) {
-			            if (typeof opt == 'object' || typeof opt == 'undefined'){
-		            	     _ = new Ease360(_[i], opt,  $(this.selector));
-			            }
-			           
-			            else
-			                ret = _.ease360[opt].apply(_[i].ease360, args);
-			          		  if (typeof ret != 'undefined') return ret;
-			        }
-			        return _;
-			        
-			 };
-						
+			$.fn.ease360 = function(options) {
 
-}));
+				_el =  $(this.selector);
+				options.el = _el;
+				return ease360(options, $(this.selector));	
+				
+			}
+
+    	}());
+    
+
+	})(jQuery);	
 	
 	
 
