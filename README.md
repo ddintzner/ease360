@@ -81,7 +81,7 @@ physics.damping | float	| 0.95	| Setting a value between 0.85 - 0.98 will create
 
 Method | Parameters | Default | Description
 ------ | ---------- | ------- | -----------
-angle() | int | 0 | Sets angle position if  argument is provided. setter
+angle(angle) | int | 0 | Sets angle position if  argument is provided. setter
 angleTo(angle, time) | int, float(optional)	|0, 1.0	| Animates sequence to angle. Duration is 1s unless provided.
 angleStep(angle) | int	|0 | Sets angle position.
 spinOver(speed) | float | 1.0 | Creates a continous play thru on frame set. Speed parameter can be positive or negative. Designed to be used as a rollover effect. 
