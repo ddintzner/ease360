@@ -86,7 +86,7 @@ angleTo(angle, time) | int, float(optional)	|0, 1.0	| Animates sequence to angle
 angleStep(angle) | int	|0 | Sets angle position.
 spinOver(speed) | float | 1.0 | Creates a continous play thru on frame set. Speed parameter can be positive or negative. Designed to be used as a rollover effect. 
 spinOut() | none | - | Used to cancel SpinOver() method.
-changeFrame()  |  array, array (required) | - updates the frames with a provided set. *If ease360 was initialized with framesHighDPI, then a 2nd array for highDPI is required.
+changeFrame()  |  array, array (required) | - | updates the frames with a provided set. *If ease360 was initialized with framesHighDPI, then a 2nd array for highDPI is required.
 ### Callbacks
 
 Method | Description
