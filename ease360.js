@@ -315,6 +315,8 @@
 			//dpi reference
 			if (_.framesHighDPI.length == _.frames.length) {
 				_.states.factoring = window.devicePixelRatio;
+			   	_.states.factoring = Math.round(_.states.factoring * 1000) / 1000;  // round out
+				
 				_.load.frames = (_.states.factoring > 1  ) ? Array.prototype.slice.call(_.framesHighDPI) : Array.prototype.slice.call(_.frames);
 
 			} else {
