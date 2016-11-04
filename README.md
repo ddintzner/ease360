@@ -58,6 +58,7 @@ frames | array	| null	| A list of string paths of ordered frames - required
 width | int | null | Pixel width dimension of the provided frames - required
 height | int | null | Pixel height dimension of the provided frames - required
 framesHighDPI | array  | - | This is a list of ordered string paths, twice the dimensions size as the frames array.  Also known as "retina" frames.
+frameDirection | int  | 1 | Set -1 to reverse the frames array sequence.
 backgroundSize | enum | 'stretch' | "stretch" will size your images to the element provided.  "cover" renders the frame at the largest size contained within, or covering, the background positioning area.
 backgroundOffsetY | float | '0px' | Pixel offset in y dimension when backgroundSize is set to "cover".
 backgroundOffsetX | float |  '0px' | Pixel offset in x dimension when backgroundSize is set to "cover".
