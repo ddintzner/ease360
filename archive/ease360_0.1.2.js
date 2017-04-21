@@ -5,7 +5,7 @@
  ) _) /    \\___ \ ) _)     (__ ((  _  \(  0 )_ / \) \\___ \
  (____)\_/\_/(____/(____)   (____/ \___/ \__/(_)\____/(____/
 
- Version: 0.1.3
+ Version: 0.1.2
  Author: Derek Dintzner
  Company: INNOCEANUSA
  Website: http://ease360.io
@@ -315,6 +315,8 @@
 			//dpi reference
 			if (_.framesHighDPI.length == _.frames.length) {
 				_.states.factoring = window.devicePixelRatio;
+			   	_.states.factoring = Math.round(_.states.factoring * 1000) / 1000;  // round out
+				
 				_.load.frames = (_.states.factoring > 1  ) ? Array.prototype.slice.call(_.framesHighDPI) : Array.prototype.slice.call(_.frames);
 
 			} else {
@@ -647,10 +649,9 @@
 					_.totalLoaded++;
 					_.newframesloaded++;
 
-					//_.progress = _.totalLoaded / _.loadingFramesGoal;
+					_.progress = _.totalLoaded / _.loadingFramesGoal;
 					_.progress = _.totalLoaded / _.frames.length;
 
-			
 					//_.progress =  _.newframesloaded/_.currentSet.newframes/;
 					_.progressUpdateFunc();
 
@@ -671,7 +672,7 @@
 							_.loadedSet.totalframes = _.newframesloaded;
 							_.preloadInitial = false;
 							//
-							_.totalLoaded =  0;
+							_.totalLoaded = 0;
 							//reset
 							return;
 
@@ -709,7 +710,7 @@
 							_.loadedSet.totalframes = _.newframesloaded;
 							_.preloadInitial = false;
 							//
-							_.totalLoaded =  0;
+
 						}
 
 					}
@@ -821,14 +822,13 @@
 			_.events.touchdirection = null;
 
 			_.states.status = "start";
-			//console.log( "startInteract"  );
+
 		}
 
 		Ease360.prototype.startMove = function(e) {
 
 			var _ = this;
-			// console.log( "startMove"  );
-			
+
 			if (!_.events.interactStart) {
 				_.events.interactStart = true;
 				_.loadingPosition = 1;
@@ -839,15 +839,14 @@
 					_.preload();
 				// only preload more if we have set it
 			}
-				
-				
+
 			if (_.states.activeTween) {
 				_.timeline.directTweenActive = false;
 				_.states.haltInterval();
 			}
 
 			_.events.mouseEventInterval = setInterval(function() {
-					_.engine()
+				_.engine()
 			}, 10);
 
 		}
@@ -855,13 +854,13 @@
 		Ease360.prototype.moveInteract = function(e) {
 
 			var _ = this;
-			//console.log( "moveInteract"  );
-			
+
 			if (_.events.touchdirection == "none")
 				return;
 
 			//is our mouse down?
-	     	if (_.events.startPos.x == null || _.events.startPos.y == null) return;
+			if (_.events.startPos.x == null || _.events.startPos.y == null)
+				return;
 
 			_.events.currentPos.x = (e.clientX) ? e.clientX : e.originalEvent.touches[0].pageX;
 			_.events.currentPos.y = (e.clientY) ? e.clientY : e.originalEvent.touches[0].pageY;
@@ -878,8 +877,7 @@
 				_.events.differencePos.x = _.events.currentPos.x - _.events.startPos.x;
 				_.events.differencePos.y = _.events.currentPos.y - _.events.startPos.y;
 
-
-				if (_.events.touchdirection ==  null) {
+				if (_.events.touchdirection == null) {
 					//check the direction of the motion, exit out if we are going up/down to give natural browser behaviour
 
 					_.events.touchdirection = (Math.abs(_.events.differencePos.x) >= Math.abs(_.events.differencePos.y)) ? "left-right" : "up-down";
@@ -888,13 +886,9 @@
 						_.startMove(e);
 					if (_.events.touchdirection == "up-down" && _.eventDirection == "up-down")
 						_.startMove(e);
-					if ( _.eventDirection == "all" )
-						_.startMove(e);
-						
 				}
 			}
-			
-			
+
 			if (_.events.touchdirection == "up-down" && _.eventDirection == "left-right")
 				return;
 			if (_.events.touchdirection == "left-right" && _.eventDirection == "up-down")
@@ -902,7 +896,6 @@
 
 			_.events.prevPos.x = _.events.currentPos.x
 			_.events.prevPos.y = _.events.currentPos.y
-			
 
 			// if(differencePos.y >  differencePos.x) return;
 
@@ -911,22 +904,12 @@
 				_.physics.acceleration += _.events.differencePos.x * _.physics.delta_multiplier;
 			if (_.events.touchdirection == "up-down" && _.eventDirection == "up-down")
 				_.physics.acceleration += _.events.differencePos.y * _.physics.delta_multiplier;
-			
-			if (_.eventDirection  == "all" &&  _.events.differencePos.x >=  _.events.differencePos.y )
-				_.physics.acceleration += _.events.differencePos.x * _.physics.delta_multiplier;
-
-			if (_.eventDirection  == "all" &&  _.events.differencePos.x < _.events.differencePos.y )
-				_.physics.acceleration += _.events.differencePos.x * _.physics.delta_multiplier;
-
 
 			//_.physics.acceleration += _.events.differencePos.x * _.physics.delta_multiplier;
 
 			e.preventDefault();
 
 		}
-
-
-
 
 		Ease360.prototype.endInteract = function(e) {
 
@@ -936,9 +919,7 @@
 			_.events.startPos.x = _.events.startPos.y = null;
 			_.events.prevPos.x = _.events.prevPos.y = null;
 			_.events.touchdirection = null;
-			_.events.activatedGestureEvent = false;
-			//console.log("endInteract");
-			
+
 		}
 
 		Ease360.prototype.progressUpdateFunc = function() {
@@ -1214,9 +1195,8 @@
 			_.physics.acceleration = 0;
 
 			//turn off engine if we are not using it
-			if (Math.abs(_.physics.speed) < 0.15 && !_.events.activatedGestureEvent ) {
+			if (Math.abs(_.physics.speed) < 0.15) {
 				clearInterval(_.events.mouseEventInterval);
-				//console.log("clearInterval(_.events.mouseEventInterval);");
 				_.states.status = "stop";
 				_.stateUpdateFunc();
 				return;
