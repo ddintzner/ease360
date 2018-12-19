@@ -27,7 +27,7 @@ ease360° is a 360 degree image spin sequencer, designed for a better feel. Util
 #### Demo
 
 website:
-[http://ease360.io/](http://ease360.io/)
+[http://ease360js.com/](http://ease360js.com/)
 
 github:
 [https://github.com/ddintzner/ease360](https://github.com/ddintzner/ease360)
@@ -99,7 +99,7 @@ stateUpdate | Triggered on change to the engine status. Values are "init", "star
 
 ### Basic  Example
 
-The below  is an excerpt from the ease360 example page http://ease360.io/examples/ease360-ex1.html
+The below  is an excerpt from the ease360 example page http://ease360js.com/examples/ease360-ex1.html
 
 ```javascript
 	
@@ -128,7 +128,7 @@ The below  is an excerpt from the ease360 example page http://ease360.io/example
 
 ### Responsive  Example with Callbacks
 
-The below  is an excerpt from the ease360 example page http://ease360.io/examples/ease360-ex3.html
+The below  is an excerpt from the ease360 example page http://ease360js.com/examples/ease360-ex3.html
 
 ```javascript
 
