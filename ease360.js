@@ -607,9 +607,9 @@
 			//callback
 			_.responsiveUpdateFunc();
 
-			$(_.el.selector).unbind();
+			_.el.unbind();
 			//$( _.el.selector ).empty();
-			$(_.el.selector + " canvas").remove();
+			_.el.find("canvas").remove();
 
 			//_.preloadSmart = _.responsiveActive;
 			_.createImagesSet();
@@ -744,23 +744,23 @@
 			var _ = this;
 
 			//bind mobile events for 360
-			$(_.el.selector).bind("touchstart", function(e) {
+			_.el.bind("touchstart", function(e) {
 				_.startInteract(e)
 			});
-			$(_.el.selector).bind("touchmove", function(e) {
+			_.el.bind("touchmove", function(e) {
 				_.moveInteract(e)
 			});
-			$(_.el.selector).bind("touchend", function(e) {
+			_.el.bind("touchend", function(e) {
 				_.endInteract(e)
 			});
 
-			$(_.el.selector).bind("mousedown", function(e) {
+			_.el.bind("mousedown", function(e) {
 				_.startInteract(e)
 			});
-			$(_.el.selector).bind("mousemove", function(e) {
+			_.el.bind("mousemove", function(e) {
 				_.moveInteract(e)
 			});
-			$(_.el.selector).bind("mouseup mouseout", function(e) {
+			_.el.bind("mouseup mouseout", function(e) {
 				_.endInteract(e)
 			});
 
@@ -771,7 +771,7 @@
 			var _ = this;
 
 			//bind mobile events for 360
-			$(_.el.selector).unbind();
+			_.el.unbind();
 
 		};
 
@@ -784,9 +784,9 @@
 
 			$(window).unbind('resize._');
 
-			$(_.el.selector).unbind();
+			_.el.unbind();
 			//$( _.el.selector ).empty();
-			$(_.el.selector + " canvas").remove();
+			_.el.find("canvas").remove();
 			_.load.frames = [];
 			_.images = [];
 
@@ -1030,7 +1030,7 @@
 
 			_.preload();
 
-			$(_.el.selector).addClass("ease360");
+			_.el.addClass("ease360");
 
 		}
 		
@@ -1545,7 +1545,7 @@
 			    ret;
 			for ( i = 0; i < l; i++) {
 				if ( typeof opt == 'object' || typeof opt == 'undefined') {
-					_ = new Ease360(_[i], opt, $(this.selector));
+					_ = new Ease360(_[i], opt, $(this));
 				} else
 					ret = _.ease360[opt].apply(_[i].ease360, args);
 				if ( typeof ret != 'undefined')
