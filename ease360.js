@@ -5,7 +5,7 @@
  ) _) /    \\___ \ ) _)     (__  ((  _ \(  0 )_ / \) \\___ \
  (____)\_/\_/(____/(____)   (____/ \___/ \__/(_)\____/(____/
 
- Version: 0.2.0
+ Version: 0.2.01
  Author: Derek Dintzner
  Company: INNOCEANUSA
  Website: http://ease360js.com
@@ -1182,6 +1182,8 @@
 
 			_.states.status = "active";
 			_.stateUpdateFunc();
+
+			_.canvas.ctx.clearRect(0, 0, _.canvasSettings.dWidth, _.canvasSettings.dHeight);
 
 			if (_.backgroundSize == "cover") {
 

@@ -35,6 +35,9 @@ github:
 
 #### Updates
 
+**11/01/2019 :**
+Transparent png support
+
 **04/16/2019 :**
 Updated ease360.js and ease360.min.js, replaced '.selector' -deprecated/removed from jquery
 To view complete replacement update, reference commit : https://github.com/ddintzner/ease360/commit/ae2df3a4bf4a923b2a7d0296438cda61848c3d27
