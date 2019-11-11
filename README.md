@@ -34,6 +34,8 @@ github:
 
 
 #### Updates
+**11/11/2019 :**
+Setting 'transparencySupport' is added.  Default is 'true', clears canvas before drawing new image.
 
 **11/01/2019 :**
 Transparent png support
