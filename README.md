@@ -78,6 +78,7 @@ flex | array | {'w' : false} | Set to true when the element is a percentage base
 touchdirection | enum | 'left-right' | 'left-right' captures users drag/touch horizontally.  'up-down' captures users drag/touch vertically. 
 responsive | array | - | Provided set of breakpoints and their options. "breakpoint" parameter required when declaring set. See Below.
 breakpoint | int |  - | The max value where the breakpoint feature set will stop. Needs to be set in the responsive array, when responsive is declared.
+transparencySupport | boolean |  true | Clears the canvas before drawing new sequence image.  Set to 'false' for legacy support. 
 
 
 ### Properties

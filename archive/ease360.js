@@ -5,7 +5,7 @@
  ) _) /    \\___ \ ) _)     (__  ((  _ \(  0 )_ / \) \\___ \
  (____)\_/\_/(____/(____)   (____/ \___/ \__/(_)\____/(____/
 
- Version: 0.2.1
+ Version: 0.2.01
  Author: Derek Dintzner
  Company: INNOCEANUSA
  Website: http://ease360js.com
@@ -57,7 +57,6 @@
 						num : 0,
 						preloadSmart : false,
 						preloadInitial : true,
-						transparencySupport : true,
 						loadingPosition : 0,
 						loadingFramesGoal : 180, //default value based on .5 loading
 						backgroundSize : "default", //  same as "stretch" or "cover"
@@ -1184,11 +1183,10 @@
 			_.states.status = "active";
 			_.stateUpdateFunc();
 
-			if (_.transparencySupport) {
-				_.canvas.ctx.clearRect(0, 0, _.canvasSettings.dWidth, _.canvasSettings.dHeight);
-			}
+			_.canvas.ctx.clearRect(0, 0, _.canvasSettings.dWidth, _.canvasSettings.dHeight);
 
 			if (_.backgroundSize == "cover") {
+
 				_.canvas.ctx.drawImage(img, _.canvasSettings.sx, _.canvasSettings.sy, _.canvasSettings.sWidth, _.canvasSettings.sHeight, _.canvasSettings.dx, _.canvasSettings.dy, _.canvasSettings.dWidth, _.canvasSettings.dHeight);
 				// dWidth and dHeight are 1/factor when using the retina factoring -- scaled should be norm
 
