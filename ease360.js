@@ -5,7 +5,7 @@
  ) _) /    \\___ \ ) _)     (__  ((  _ \(  0 )_ / \) \\___ \
  (____)\_/\_/(____/(____)   (____/ \___/ \__/(_)\____/(____/
 
- Version: 0.2.1
+ Version: 0.2.2
  Author: Derek Dintzner
  Company: INNOCEANUSA
  Website: http://ease360js.com
@@ -144,6 +144,8 @@
 					$.extend(_, settings);
 
 					_.timeline.angle = _.startAngle;
+					_.physics.position = _.timeline.angle * 10;
+
 					_.initStart(true);
 
 				}
@@ -203,6 +205,8 @@
 						_.responsive[i].frameDirection = _.frameDirection;
 					if (_.responsive[i].startAngle == undefined)
 						_.responsive[i].startAngle = _.startAngle;
+						_.physics.position = _.timeline.angle * 10;
+
 					if (_.responsive[i].preloadSmart == undefined)
 						_.responsive[i].preloadSmart = _.preloadSmart;
 
@@ -219,7 +223,6 @@
 							//list out all the properties for each loadset
 
 						}
-
 					}
 
 					_.responsive[i].loadingPosition = 0;
@@ -822,13 +825,11 @@
 			_.events.touchdirection = null;
 
 			_.states.status = "start";
-			//console.log( "startInteract"  );
 		}
 
 		Ease360.prototype.startMove = function(e) {
 
 			var _ = this;
-			// console.log( "startMove"  );
 			
 			if (!_.events.interactStart) {
 				_.events.interactStart = true;
@@ -855,9 +856,8 @@
 
 		Ease360.prototype.moveInteract = function(e) {
 
-			var _ = this;
-			//console.log( "moveInteract"  );
-			
+			var _ = this;			
+
 			if (_.events.touchdirection == "none")
 				return;
 
@@ -905,8 +905,6 @@
 			_.events.prevPos.y = _.events.currentPos.y
 			
 
-			// if(differencePos.y >  differencePos.x) return;
-
 			//physics
 			if (_.events.touchdirection == "left-right" && _.eventDirection == "left-right")
 				_.physics.acceleration += _.events.differencePos.x * _.physics.delta_multiplier;
@@ -919,8 +917,6 @@
 			if (_.eventDirection  == "all" &&  _.events.differencePos.x < _.events.differencePos.y )
 				_.physics.acceleration += _.events.differencePos.x * _.physics.delta_multiplier;
 
-
-			//_.physics.acceleration += _.events.differencePos.x * _.physics.delta_multiplier;
 
 			e.preventDefault();
 
@@ -938,7 +934,6 @@
 			_.events.prevPos.x = _.events.prevPos.y = null;
 			_.events.touchdirection = null;
 			_.events.activatedGestureEvent = false;
-			//console.log("endInteract");
 			
 		}
 
@@ -1220,7 +1215,6 @@
 			//turn off engine if we are not using it
 			if (Math.abs(_.physics.speed) < 0.15 && !_.events.activatedGestureEvent ) {
 				clearInterval(_.events.mouseEventInterval);
-				//console.log("clearInterval(_.events.mouseEventInterval);");
 				_.states.status = "stop";
 				_.stateUpdateFunc();
 				return;
@@ -1234,10 +1228,11 @@
 			var scaledresult = ((o - 0) / (_.physics.positionCap - 0)) * (_.loadedSet.totalframes - 0) + 0;
 
 			scaledresult--;
+
 			//offset for array  - will give us the frame
 			scaledresult = Math.ceil(scaledresult) * _.loadedSet.engine;
-
 			_.timeline.angle = scaledresult;
+
 			_.angleUpdateFunc();
 
 			//redraw canvas

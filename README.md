@@ -34,6 +34,9 @@ github:
 
 
 #### Updates
+**3/3/2020 :**
+Fixed 'startAngle' issue. Now initial interaction starts at the defined angle. No longer resets back to angle 0.
+
 **11/11/2019 :**
 Setting 'transparencySupport' is added.  Default is 'true', clears canvas before drawing new image.
 
