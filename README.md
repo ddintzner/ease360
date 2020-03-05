@@ -34,6 +34,9 @@ github:
 
 
 #### Updates
+**3/5/2020 :**
+If you add retina set to a breakpoint, you are no longer required to include a retina set images for all breakpoints. You can now mix and match what breakpoints you want to include a retina set (framesHighDPI).
+
 **3/3/2020 :**
 Fixed 'startAngle' issue. Now initial interaction starts at the defined angle. No longer resets back to angle 0.
 

@@ -5,7 +5,7 @@
  ) _) /    \\___ \ ) _)     (__  ((  _ \(  0 )_ / \) \\___ \
  (____)\_/\_/(____/(____)   (____/ \___/ \__/(_)\____/(____/
 
- Version: 0.2.3
+ Version: 0.2.2
  Author: Derek Dintzner
  Company: INNOCEANUSA
  Website: http://ease360js.com
@@ -183,6 +183,7 @@
 					} else {
 
 						_.responsive[i].framesReference = false;
+						//
 					}
 
 					if (_.responsive[i].framesHighDPI == undefined)
@@ -449,7 +450,6 @@
 				_.canvas.c.height = _.canvas.height = _height;
 
 				_.states.status = "init";
-
 				_.canvasSettings = _.canvasMath(_.images[_.timeline.angle]);
 				_.canvasDraw(_.images[_.timeline.angle]);
 				return;
@@ -493,17 +493,9 @@
 			_.images = [];
 			//clear image set out
 
-
 			_.frames = _.responsive[_.responsiveActive].frames;
 			_.framesHighDPI = _.responsive[_.responsiveActive].framesHighDPI;
 			//if the exist
-
-			//check if there is a HighDPI image contained in the breakpoint, if not then set factoring to 1
-			if (_.framesHighDPI.length == _.frames.length) {
-				_.states.factoring = window.devicePixelRatio;
-			} else {
-				_.states.factoring = 1
-			}
 
 			_.width = _.responsive[_.responsiveActive].width;
 			_.height = _.responsive[_.responsiveActive].height;
@@ -1051,8 +1043,6 @@
 			sx = sy = 0;
 			sWidth = img.width * _.states.factoring;
 			sHeight = img.height * _.states.factoring;
-
-
 
 			//add user defined offsets  -- based on retina image provided is 2x
 			var devicepixelOffset = (_.states.factoring > 1) ? 2 : 1;
