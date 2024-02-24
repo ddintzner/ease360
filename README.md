@@ -34,6 +34,9 @@ github:
 
 
 #### Updates
+**2/23/2024 : 0.2.4**
+Fixed issue with 'preloadSmart' not rendering additional canvas frames.
+
 **3/5/2020 :**
 If you add retina set to a breakpoint, you are no longer required to include a retina set images for all breakpoints. You can now mix and match what breakpoints you want to include a retina set (framesHighDPI).
 
