@@ -34,6 +34,12 @@ github:
 
 
 #### Updates
+**11/8/2024 : 0.2.6**
+Enchancement for 'changeFrames' event with preloadSmart = true.  When 'changeFrames' event is triggered, the current angle will be loaded in first.  Also will carry over preloadSmart feature over to the new set of images.
+
+**11/8/2024 : 0.2.5**
+Fixed 'changeFrames' event - 2nd set not loading with preloadSmart = true
+
 **2/23/2024 : 0.2.4**
 Fixed issue with 'preloadSmart' not rendering additional canvas frames.
 
