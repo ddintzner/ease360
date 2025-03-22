@@ -35,7 +35,7 @@ github:
 
 #### Updates
 **03/22/2025 : 0.2.7**
-Add new 'background' settings 'cover-center' and 'cover-top'. 
+Add new 'backgroundSize' settings 'cover-center' and 'cover-top'. 
 
 **11/8/2024 : 0.2.65**
 Updated 'changeFrames' event to wait until engine has stopped before updating image set. 
@@ -93,7 +93,7 @@ width | int | null | Pixel width dimension of the provided frames - required
 height | int | null | Pixel height dimension of the provided frames - required
 framesHighDPI | array  | - | This is a list of ordered string paths, twice the dimensions size as the frames array.  Also known as "retina" frames.
 frameDirection | int  | 1 | Set -1 to reverse the frames array sequence.
-backgroundSize | enum | 'stretch' | "stretch" will size your images to the element provided.  "cover" renders the frame at the largest size contained within, or covering, the background positioning area.
+backgroundSize | enum | 'stretch' | "stretch" will size your images to the element provided.  "cover" renders the frame at the largest size contained within, or covering, the background positioning area. "cover-center" combines the features of "cover" with centering.  "cover-top" combines the "cover" option while pinning the render to the top of the canvas.
 backgroundOffsetY | float | '0px' | Pixel offset in y dimension when backgroundSize is set to "cover".
 backgroundOffsetX | float |  '0px' | Pixel offset in x dimension when backgroundSize is set to "cover".
 preloadSmart | boolean | false | When setting to "true", every other frame will load, resulting in 50% of the entire set. The rest of set will load and become active upon user initiation. If set to true, the frames array is required to be an even length.
