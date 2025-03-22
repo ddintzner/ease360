@@ -34,6 +34,9 @@ github:
 
 
 #### Updates
+**03/22/2025 : 0.2.7**
+Add new 'background' settings 'cover-center' and 'cover-top'. 
+
 **11/8/2024 : 0.2.65**
 Updated 'changeFrames' event to wait until engine has stopped before updating image set. 
 
