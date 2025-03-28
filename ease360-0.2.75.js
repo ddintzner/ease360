@@ -5,10 +5,10 @@
  ) _) /    \\___ \ ) _)     (__  ((  _ \(  0 )_ / \) \\___ \
  (____)\_/\_/(____/(____)   (____/ \___/ \__/(_)\____/(____/
 
- Version: 0.2.65
+ Version: 0.2.75
  Author: Derek Dintzner
  Company: INNOCEANUSA
- Website: http://ease360js.com
+ Website: http://ease360.inoceanusa.com
 
 
  */
@@ -68,6 +68,7 @@
 						responsive : [],
 						responsiveActive : 0,
 						resizeTimer : null,
+						resizeFrequency: 20,
 						images : [],
 						width : 0,
 						height : 0,
@@ -113,6 +114,7 @@
 							directTweenActive : false,
 							easeInterval : undefined
 						},
+						damping : null,
 						physics : {
 							position : 1, //starting position based on 0 - 3600
 							speed : 0,
@@ -172,6 +174,7 @@
 
 			//E V E N T S
 			var _ = this;
+
 
 			//responsive : create object
 			if (_.responsive.length != 0) {
@@ -239,35 +242,13 @@
 					_.resize()
 				});
 
-				//preappend the master set as the largest, default set
-				var d = {};
 
-				d.breakpoint = 10000000000, //max width
-				d.frames = _.frames;
-				d.framesHighDPI = _.framesHighDPI//if the exist
-				d.flex = _.flex;
-				d.width = _.width;
-				d.height = _.height;
-				d.backgroundOffsetY = _.backgroundOffsetY;
-				d.backgroundOffsetX = _.backgroundOffsetX;
-				d.images = [];
-				d.totalLoaded = 0;
-				d.currentSet = [];
-				d.activated = false;
-				d.load = {};
-				d.events = {};
-				d.increment = 360 / d.frames.length;
-				d.totalframes = d.frames.length;
-				d.preloadSmart = _.preloadSmart;
-				d.loadSet = _.loadSets(_);
-
-				_.responsive.unshift(d);
 				// will add the default node to the front of the array
 
 				//set current breakpoint to the frames
-				var breakpoint,
-				    responsiveCurrentIndex;
+				var breakpoint, responsiveCurrentIndex;
 				breakpoint = responsiveCurrentIndex = 0;
+
 
 				for (var i = 0; i < _.responsive.length; i++) {
 
@@ -295,11 +276,19 @@
 				_.increment = 360 / _.frames.length;
 				_.loadSet = _.loadSets(_);
 
+				
+
 				// set our window listener
 				$(window).bind('resize._', function() {
 					_.resize()
 				});
 
+			}
+
+
+			//set the update
+			if (_.damping != null) {
+				_.physics.damping = _.damping;
 			}
 
 			if (_.backgroundSize == "cover" || _.backgroundSize ==  "cover-center"  || _.backgroundSize == "cover-top" ) {
@@ -336,7 +325,7 @@
 
 				var img = new Image;
 				_.images.push(img);
-
+	
 			}
 		};
 
@@ -379,6 +368,7 @@
 
 
 			_.canvasDraw(_.images[_.timeline.angle]);
+			//_.states.status = "stop";
 
 		}
 
@@ -391,7 +381,7 @@
 			clearTimeout(_.resizeTimer);
 			_.resizeTimer = setTimeout(function() {
 				resizedw();
-			}, 200);
+			}, _.resizeFrequency);
 
 			function resizedw() {
 
@@ -413,7 +403,7 @@
 
 				for (var i = 0; i < _.responsive.length; i++) {
 
-					if (w < _.responsive[i].breakpoint) {
+					if (w <= _.responsive[i].breakpoint) {
 						breakpoint = _.responsive[i].breakpoint;
 						responsiveCurrentIndex = i;
 					}
@@ -424,6 +414,7 @@
 
 				//rebuild / init if we are in a new breakpoint or the set is a bleed
 				if (_.responsiveActive !== previousActive || (_.responsive[_.responsiveActive].flex.w == true || _.responsive[_.responsiveActive].flex.h == true )) {
+		
 					_.responsiveInit(previousActive);
 				}
 			}
@@ -496,9 +487,9 @@
 			_.images = [];
 			//clear image set out
 
-
 			_.frames = _.responsive[_.responsiveActive].frames;
 			_.framesHighDPI = _.responsive[_.responsiveActive].framesHighDPI;
+
 			//if the exist
 
 			//check if there is a HighDPI image contained in the breakpoint, if not then set factoring to 1
@@ -522,8 +513,8 @@
 			_.loadedSet = _.currentSet;
 
 			// if there are images already contained in the set
-
 			// if the current responsive set hasnt been loaded, is referencing the master set and the master set has been actived, then =
+
 			if (!_.responsive[_.responsiveActive].activated && _.responsive[_.responsiveActive].framesReference && _.responsive[0].activated) {
 
 				_.images = Array.prototype.slice.call(_.responsive[0].images);
@@ -593,17 +584,46 @@
 				_.states.status = "init";
 
 				//if revisited angle exists with an image then return
-				//else reset our angle and physics to 0
+				
+				if (_.images[_.timeline.angle].file == undefined ||  !_.images[_.timeline.angle].loaded) {
 
-				if (_.images[_.timeline.angle].file == undefined)
-					_.timeline.angle = _.physics.position = 0;
+					//else reset our angle and physics to 0
+					//_.timeline.angle = _.physics.position = 0;
+					
+					//load current frame 
+					let i = _.timeline.angle
+
+					let n = (i / 360) * _.totalframes;
+					let filename = _.load.frames[n];
+
+					_.images[i].width = _.width * _.states.factoring;
+					_.images[i].height = _.height * _.states.factoring;
+
+					_.images[i].id = i;
+					_.images[i].file = filename;
+
+
+
+					_.images[i].onload = function() {
+
+						this.loaded = true;
+						_.canvasDraw(_.images[_.timeline.angle]);
+
+					}
+
+					_.images[i].src = filename;
+
+				}
+
 				_.angleUpdateFunc();
 				_.canvasSettings = _.canvasMath(_.images[_.timeline.angle]);
 				_.canvasDraw(_.images[_.timeline.angle]);
 
+			
 				return;
 
 			}
+
 
 			//clear all intervals
 			_.stopAllIntervals();
@@ -613,6 +633,7 @@
 
 			//reset properties
 			_.loadingPosition = 0;
+
 			//_.timeline.angle = _.physics.position = 0;
 			_.angleUpdateFunc();
 			_.events.activatedGestureEvent = false;
@@ -626,11 +647,13 @@
 			//$( _.el.selector ).empty();
 			_.el.find("canvas").remove();
 
-			//_.preloadSmart = _.responsiveActive;
 			_.createImagesSet();
 			_.buildOut();
+			// _.preload(_.timeline.angle);
+			// _.angleTo(_.timeline.angle, 0);
 
 		};
+
 
 		Ease360.prototype.preload = function(u) {
 
@@ -648,6 +671,7 @@
 
 				const n = u/(360 / _.loadSet[1].totalframes);
 
+
 				//load current frame 
 				var filename = _.load.frames[n];
 
@@ -656,11 +680,11 @@
 
 				_.images[u].id = u;
 				_.images[u].file = filename;
+				
 
 				_.images[u].onload = function() {
 
 					this.loaded = true;
-
 					_.canvasDraw(_.images[_.timeline.angle]);
 
 				}
@@ -669,13 +693,13 @@
 
 			}
 
-			_.currentSet = _.loadSet[_.loadingPosition];
 
+			_.currentSet = _.loadSet[_.loadingPosition];
 			_.newframesloaded = 0;
+
 
 			//set objects properties based on our loadSets
 			_.loadingFramesGoal = _.currentSet.totalframes;
-
 
 			for (var i = _.currentSet.start; i < 360; i += _.currentSet.increment) {
 
@@ -690,6 +714,7 @@
 
 				_.images[i].id = i;
 				_.images[i].file = filename;
+
 
 				_.images[i].loaded = false;
 
@@ -706,11 +731,14 @@
 					//_.progress =  _.newframesloaded/_.currentSet.newframes/;
 					_.progressUpdateFunc();
 
+
+
 					//if we have loaded all the new frames  -- before click
 					if ((_.newframesloaded == _.currentSet.newframes) && _.events.changeFrames) {
 
 						_.events.changeFrames = false;
-						_.states.status = "active";
+						_.states.status = "loaded";
+
 
 						//complete load of all target frames
 						if (!_.events.interactStart) {
@@ -784,6 +812,33 @@
 						}
 
 					}
+				}
+
+				_.images[i].src = filename;
+
+			}
+
+			if (_.images[_.timeline.angle].src == "" ) {
+
+				//load current frame 
+				let i = _.timeline.angle
+
+				let n = (i / 360) * _.totalframes;
+				let filename = _.load.frames[n];
+
+				_.images[i].width = _.width * _.states.factoring;
+				_.images[i].height = _.height * _.states.factoring;
+
+				_.images[i].id = i;
+				_.images[i].file = filename;
+
+
+
+				_.images[i].onload = function() {
+
+					this.loaded = true;
+					_.canvasDraw(_.images[_.timeline.angle]);
+
 				}
 
 				_.images[i].src = filename;
@@ -909,9 +964,8 @@
 				_.states.haltInterval();
 			}
 
-			_.events.mouseEventInterval = setInterval(function() {
-					_.engine()
-			}, 10);
+
+			_.events.mouseEventInterval = setInterval(function() { _.engine(); }, 10);
 
 		}
 
@@ -1251,20 +1305,24 @@
 				_.canvas.ctx.clearRect(0, 0, _.canvasSettings.dWidth, _.canvasSettings.dHeight);
 			}
 
+
 			if (_.backgroundSize == "cover") {
 				_.canvas.ctx.drawImage(img, _.canvasSettings.sx, _.canvasSettings.sy, _.canvasSettings.sWidth, _.canvasSettings.sHeight, _.canvasSettings.dx, _.canvasSettings.dy, _.canvasSettings.dWidth, _.canvasSettings.dHeight);
 				// dWidth and dHeight are 1/factor when using the retina factoring -- scaled should be norm
 
+				const drawImageCover = {"img" : img, "sx" :  _.canvasSettings.sx, "sy" :  _.canvasSettings.sy, "sWidth":  _.canvasSettings.sWidth, "sHeight" : _.canvasSettings.sHeight, "dx" :  _.canvasSettings.dx, "dy" : _.canvasSettings.dy, "dWidth" : _.canvasSettings.dWidth, "dHeight" :  _.canvasSettings.dHeight  };
+				
+
+
 			} else if (_.backgroundSize == "cover-top") {
 
-				//pin to top
 				_.canvas.ctx.drawImage(img, _.canvasSettings.sx, 0, _.canvasSettings.sWidth, _.canvasSettings.sHeight, _.canvasSettings.dx, _.canvasSettings.dy, _.canvasSettings.dWidth, _.canvasSettings.dHeight);
 		
 
 			} else if (_.backgroundSize == "cover-center") {
 
-				//is the width or height at full?
-	
+				//is the width or height at full?	
+
 				const aspectRatioCover = _.canvasSettings.dWidth / _.width; // get the width aspect ratio between the destination canvas and image source
 				const centerHeight = (( _.height * aspectRatioCover ) -  _.canvasSettings.dHeight )  / 2; // find where we need to come down on the crop
 
@@ -1277,6 +1335,7 @@
 
 				const drawImageCover = {"img" : img, "sx" : _.canvasSettings.sx, "sy" :  centerHeightToSource, "sWidth":  _.canvasSettings.sWidth, "sHeight" : _.canvasSettings.sHeight, "dx" :  _.canvasSettings.dx, "dy" : _.canvasSettings.dy, "dWidth" : _.canvasSettings.dWidth, "dHeight" :  _.canvasSettings.dHeight  };
 
+
 			} else {
 
 				//'default' setting
@@ -1285,6 +1344,8 @@
 			}
 
 		}
+
+
 
 		Ease360.prototype.engine = function() {
 
@@ -1312,10 +1373,10 @@
 				return;
 			}
 
+
 			var o = _.physics.position % _.physics.positionCap;
 			if (o < 0)
 				o = _.physics.positionCap + o;
-
 
 
 			//test - what we get when there is 36 frames
@@ -1338,6 +1399,8 @@
 			_.canvasDraw(_.images[scaledresult]);
 
 		}
+
+
 
 		Ease360.prototype.changeFrames = function(m, n) {
 
@@ -1380,8 +1443,70 @@
 				changeFrames(); // the engine is off, then we can change
 			}
 
+		}
+
+
+
+
+		Ease360.prototype.changeFramesResponsive = function(m) {
+
+			var _ = this;
+
+			function changeFramesResponsive() { 
+				
+				_.events.changeFrames = true;
+
+				for(let i=0; i < _.responsive.length; i++) {
+
+					_.responsive[i].totalLoaded = 0;
+					_.responsive[i].loadingPosition = 0;
+					_.responsive[i].currentSet = [];
+					_.responsive[i].activated = false;
+					_.responsive[i].frames = [];
+					_.responsive[i].images = [];
+					_.responsive[i].frames = m[i];
+
+					_.responsive[i].loadSet = _.loadSets(_.responsive[i]);
+
+					_.responsive[i].events.interactStart = false;
+				}	
+
+
+				_.responsive[_.responsiveActive].activated = true;
+				_.loadingPosition = _.responsive[_.responsiveActive].loadingPosition = 0;
+				_.totalLoaded = _.responsive[_.responsiveActive].totalLoaded = 0;
+				_.totalframes = _.responsive[_.responsiveActive].frames.length;
+				_.currentSet = _.responsive[_.responsiveActive].currentSet;
+				_.frames = _.responsive[_.responsiveActive].frames;
+
+		
+
+				_.createImagesSet();
+				_.preload(_.timeline.angle);
+				//_.responsiveInit(_.responsiveActive)
+			}
+
+			if (  _.states.engine ) {  
+				function recheckEngineState() {
+
+		    		if( _.states.engine ) {
+		      			setTimeout(recheckEngineState, 50); //wait 50 millisecnds then recheck
+		        		return;
+		    		} else {
+			    		changeFramesResponsive(); // the engine is no longer on
+			    	}
+			    }
+
+			    recheckEngineState();
+			} else {
+				changeFramesResponsive(); // the engine is off, then we can change
+			}
 
 		}
+
+
+
+
 
 
 		Ease360.prototype.angleTo = function(angle, time) {

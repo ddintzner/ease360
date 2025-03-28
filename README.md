@@ -24,18 +24,19 @@ ease360° is a 360 degree image spin sequencer, designed for a better feel. Util
 -Retina/HighDPI support
 
 
-#### Demo
-
-website:
-[http://ease360js.com/](http://ease360js.com/)
+#### Repo
 
 github:
 [https://github.com/ddintzner/ease360](https://github.com/ddintzner/ease360)
 
 
 #### Updates
+**03/28/2025 : 0.2.75**
+Declaring a responsive set of images has been updated. Do not declare an image set, width or height outside the responsive setting, all image sets should be within the responsive array (see example below). 
+New 'changeFramesResponsive()' for frame updates on a responsive sets. The physics control of 'damping' is now a setting. 
+
 **03/22/2025 : 0.2.7**
-Add new 'backgroundSize' settings 'cover-center' and 'cover-top'. 
+New 'backgroundSize' settings 'cover-center' and 'cover-top'. 
 
 **11/8/2024 : 0.2.65**
 Updated 'changeFrames' event to wait until engine has stopped before updating image set. 
@@ -65,7 +66,6 @@ Transparent png support
 Updated ease360.js and ease360.min.js, replaced '.selector' -deprecated/removed from jquery
 To view complete replacement update, reference commit : https://github.com/ddintzner/ease360/commit/ae2df3a4bf4a923b2a7d0296438cda61848c3d27
 
-Added hotkey demo, view example http://www.ease360js.com/examples/ease360-ex4.html
 
 #### Usage
 
@@ -74,7 +74,7 @@ Jquery +1.7 is required, and needs to be declared before ease360 js.
 Example:
 
 ```html
-    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"/></script/>
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.7.0.min.js"/></script/>
     <script type="text/javascript" src="js/ease360.min.js"/></script/>
 ```
 Define and call your ease360° variable.
@@ -89,8 +89,8 @@ Define and call your ease360° variable.
 Option | Type | Default | Description
 ------ | ---- | ------- | -----------
 frames | array	| null	| A list of string paths of ordered frames - required
-width | int | null | Pixel width dimension of the provided frames - required
-height | int | null | Pixel height dimension of the provided frames - required
+width | int | null | Pixel width dimension of the source frames - required
+height | int | null | Pixel height dimension of the source frames - required
 framesHighDPI | array  | - | This is a list of ordered string paths, twice the dimensions size as the frames array.  Also known as "retina" frames.
 frameDirection | int  | 1 | Set -1 to reverse the frames array sequence.
 backgroundSize | enum | 'stretch' | "stretch" will size your images to the element provided.  "cover" renders the frame at the largest size contained within, or covering, the background positioning area. "cover-center" combines the features of "cover" with centering.  "cover-top" combines the "cover" option while pinning the render to the top of the canvas.
@@ -102,7 +102,7 @@ touchdirection | enum | 'left-right' | 'left-right' captures users drag/touch ho
 responsive | array | - | Provided set of breakpoints and their options. "breakpoint" parameter required when declaring set. See Below.
 breakpoint | int |  - | The max value where the breakpoint feature set will stop. Needs to be set in the responsive array, when responsive is declared.
 transparencySupport | boolean |  true | Clears the canvas before drawing new sequence image.  Set to 'false' for legacy support. 
-
+damping | float | 0.95  | Physics setting with a value between 0.85 - 0.98 will create an effect from very firm to very fluid. A value of 1.0 will create a nonstop spin. setter-getter
 
 ### Properties
 
@@ -110,7 +110,6 @@ Option | Type | Default | Description
 ------ | ---- | ------- | -----------
 angle() | int	| -	| Returns the current angle. Values can be 0-359. getter
 progress | float	| 0	| Returns a 0-1 value on the loading progress of the provided frame set. getter
-physics.damping | float	| 0.95	| Setting a value between 0.85 - 0.98 will create an effect from very firm to very fluid. A value of 1.0 will create a nonstop spin. setter-getter
 
 
 ### Methods/Events
@@ -123,6 +122,8 @@ angleStep(angle) | int	|0 | Sets angle position.
 spinOver(speed) | float | 1.0 | Creates a continous play thru on frame set. Speed parameter can be positive or negative. Designed to be used as a rollover effect. 
 spinOut() | none | - | Used to cancel SpinOver() method.
 changeFrame()  |  array, array (required) | - | updates the frames with a provided set. *If ease360 was initialized with framesHighDPI, then a 2nd array for highDPI is required.
+changeFramesResponsive() |  array (required) | - | if initialized ease360 with responsive sets, then use changeFramesResponsive() over changeFrame() to update frames. The array needs to include each breakpoint set of frames in the same order as the initialization.
+
 ### Callbacks
 
 Method | Description
@@ -134,7 +135,7 @@ stateUpdate | Triggered on change to the engine status. Values are "init", "star
 
 ### Basic  Example
 
-The below  is an excerpt from the ease360 example page http://ease360js.com/examples/ease360-ex1.html
+The below is an example on a basic initialization.
 
 ```javascript
 	
@@ -151,8 +152,8 @@ The below  is an excerpt from the ease360 example page http://ease360js.com/exam
 		
 		   myEase360 = $('#myEase360').ease360({
 		        frames: greenTeapot,  
-		        width : 540,  
-		        height: 540
+		        width : 540,  // source image width
+		        height: 540  // source image height
 	       });
 		
 	});
@@ -163,154 +164,137 @@ The below  is an excerpt from the ease360 example page http://ease360js.com/exam
 
 ### Responsive  Example with Callbacks
 
-The below  is an excerpt from the ease360 example page http://ease360js.com/examples/ease360-ex3.html
+The below is an example on using the changeFramesResponsive() method for changing responsive image sets. 
 
 ```javascript
 
 "use strict";
 
-    var myEase360;  // define variable
-    
-    var greenTeapot = [];
-    var greenTeapotRetina = [];
-    var pathgr = "./images/teapot_green_36/";
-          
-    for(var i = 0; i < 36; i++){
-          greenTeapot.push(pathgr + "teapot_" + i + ".jpg");
-          greenTeapotRetina.push(pathgr + "teapot_" + i + "@2x.jpg");
+var myEase360; 
+
+//Gray set
+var vehicleframesTucsonGray1440 = [];
+var vehicleframesTucsonGray1024 = [];
+var vehicleframesTucsonGray640  = [];
+var vehicleframesTucsonGray534  = [];
+
+//Red set
+var vehicleframesTucsonRed1440 = [];
+var vehicleframesTucsonRed1024 = [];
+var vehicleframesTucsonRed640  = [];
+var vehicleframesTucsonRed534  = [];
+
+//White set
+var vehicleframesTucsonWhite1440 = [];
+var vehicleframesTucsonWhite1024 = [];
+var vehicleframesTucsonWhite640  = [];
+var vehicleframesTucsonWhite534  = [];
+
+//The Current Set
+var vehicleframesTucson1440 = [];
+var vehicleframesTucson1024 = [];
+var vehicleframesTucson640  = [];
+var vehicleframesTucson534  = [];
+
+
+for(let i = 1; i <= 36; i++){
+
+  vehicleframesTucsonGray1440.push("./image/hyundai/2025-tucson-hev-blue-awd-amazon-gray-pearl-" +  ('000' + i).slice(-3) + "?wid=1440&fmt=webp-alpha");
+  vehicleframesTucsonGray1024.push("./image/hyundai/2025-tucson-hev-blue-awd-amazon-gray-pearl-" +  ('000' + i).slice(-3) + "?wid=1024&fmt=webp-alpha");
+  vehicleframesTucsonGray640.push("./image/hyundai/2025-tucson-hev-blue-awd-amazon-gray-pearl-" +  ('000' + i).slice(-3) + "?wid=640&fmt=webp-alpha");
+  vehicleframesTucsonGray534.push("./image/hyundai/2025-tucson-hev-blue-awd-amazon-gray-pearl-" +  ('000' + i).slice(-3) + "?wid=534&fmt=webp-alpha");
+
+  vehicleframesTucsonRed1440.push("./image/hyundai/2025-tucson-hev-blue-awd-ultimate-red-" +  ('000' + i).slice(-3) + "?wid=1440&fmt=webp-alpha");
+  vehicleframesTucsonRed1024.push("./image/hyundai/2025-tucson-hev-blue-awd-ultimate-red-" +  ('000' + i).slice(-3) + "?wid=1024&fmt=webp-alpha");
+  vehicleframesTucsonRed640.push("./image/hyundai/2025-tucson-hev-blue-awd-ultimate-red-" +  ('000' + i).slice(-3) + "?wid=640&fmt=webp-alpha");
+  vehicleframesTucsonRed534.push("./image/hyundai/2025-tucson-hev-blue-awd-ultimate-red-" +  ('000' + i).slice(-3) + "?wid=534&fmt=webp-alpha");
+
+  vehicleframesTucsonWhite1440.push("./image/hyundai/2025-tucson-hev-blue-awd-creamy-white-pearl-" +  ('000' + i).slice(-3) + "?wid=1440&fmt=webp-alpha");
+  vehicleframesTucsonWhite1024.push("./image/hyundai/2025-tucson-hev-blue-awd-creamy-white-pearl-" +  ('000' + i).slice(-3) + "?wid=1024&fmt=webp-alpha");
+  vehicleframesTucsonWhite640.push("./image/hyundai/2025-tucson-hev-blue-awd-creamy-white-pearl-" +  ('000' + i).slice(-3) + "?wid=640&fmt=webp-alpha");
+  vehicleframesTucsonWhite534.push("./image/hyundai/2025-tucson-hev-blue-awd-creamy-white-pearl-" +  ('000' + i).slice(-3) + "?wid=534&fmt=webp-alpha");
+
+}
+
+vehicleframesTucson1440 = vehicleframesTucsonSilver1440;
+vehicleframesTucson1024 = vehicleframesTucsonSilver1024; 
+vehicleframesTucson640 = vehicleframesTucsonSilver640;
+vehicleframesTucson534 = vehicleframesTucsonSilver534;
+
+$(function() { 
+      
+    myEase360 = $('#myEase360').ease360({
+    backgroundSize: "cover-center", 
+    preloadSmart : false,  // we don't want to preload the images for this
+    startAngle: 60, // angle, not frame where we want to start, it needs to be included in the imagesource set
+    damping :  0.925,
+    responsive:  [
+      {
+        breakpoint: 1440,  // 1440 below and above
+        frames: vehicleframesTucson1440, 
+        flex : {"w" :  true}, 
+        width : 1440, // width of the source file set at 1440
+        height: 722   // height of the source file set at 1440
+      }, 
+      {
+        breakpoint: 1024,  //  below 1024
+        frames: vehicleframesTucson1024, 
+        flex : {"w" :  true}, 
+        width : 1024,  // width of the source file set at 1024
+        height: 534    // height of the source file set at 1024
+      }, 
+      {
+        breakpoint: 640,  //  below 640
+        frames: vehicleframesTucson640,
+        flex : {"w" :  true},  
+        width : 640,   // width of the source file set at 640
+        height: 360    // height of the source file set at 640
+      }, 
+      {
+        breakpoint: 534,  //  below 534
+        frames: vehicleframesTucson534,
+        flex : {"w" :  true},  
+        width : 534,   // width of the source file set at 534
+        height: 301    // height of the source file set at 534
+      }
+    ],
+    progressUpdate: function() { myProgress(); },
+    responsiveUpdate: function() { myResponsiveUpdate(); }
+  });
+
+
+     
+    function changeColor(c) {
+
+      if(c == "gray") {
+        vehicleframesTucson1440 = vehicleframesTucsonGray1440;
+        vehicleframesTucson1024 = vehicleframesTucsonGray1024; 
+        vehicleframesTucson640 = vehicleframesTucsonGray640;
+        vehicleframesTucson534 = vehicleframesTucsonGray534;
+
+      }
+      if(c == "red"){
+        vehicleframesTucson1440 = vehicleframesTucsonRed1440;
+        vehicleframesTucson1024 = vehicleframesTucsonRed1024; 
+        vehicleframesTucson640 = vehicleframesTucsonRed640;
+        vehicleframesTucson534 = vehicleframesTucsonRed534;
+
+      }
+
+      if(c == "white"){
+        vehicleframesTucson1440 = vehicleframesTucsonWhitel1440;
+        vehicleframesTucson1024 = vehicleframesTucsonWhite1024; 
+        vehicleframesTucson640 = vehicleframesTucsonWhite640;
+        vehicleframesTucson534 = vehicleframesTucsonWhite534;
+
+      }
+
+      //the amount and order of the array being passed should be the same as the 'responsive' in the initialization of the ease360
+      myEase360.changeFramesResponsive([vehicleframesTucson1440, vehicleframesTucson1024, vehicleframesTucson640, vehicleframesTucson534]);
+            
     }
 
-    var orangeTeapot = [];
-    var orangeTeapotRetina = [];
-    var pathor = "./images/teapot_orange_360/";
-         
-    for(var i = 0; i < 360; i+=5){
-        orangeTeapot.push(pathor + "teapot_" + i + ".jpg");
-        orangeTeapotRetina.push(pathor + "teapot_" + i + "@2x.jpg");
-    }
-        
-   var blueTeapot = [];
-   var blueTeapotRetina = [];
-   var pathbl = "./images/teapot_blue_36/";
-        
-    for(var i = 0; i < 36; i++){
-        blueTeapot.push(pathbl + "teapot_" + i + ".jpg");
-        blueTeapotRetina.push(pathbl + "teapot_" + i + "@2x.jpg");
-    }
 
-    $(function() { 
-        
-           myEase360 = $('#myEase360').ease360({
-                frames: orangeTeapot,  //required
-                framesHighDPI: orangeTeapotRetina,
-                frameDirection: -1,  //our sequence is reversed, so pass -1
-                width : 540,   //required
-                height: 540,   //required
-                backgroundSize: "cover",  
-                backgroundOffsetY: 10,
-                responsive : [
-                 {
-                        breakpoint: 1280,  //max width
-                        frames: greenTeapot, 
-                        framesHighDPI: greenTeapotRetina, 
-                        width : 540,  
-                        height: 540,  
-                        backgroundOffsetY: 10,  
-                     },   
-                    {
-                        breakpoint: 1024,  //max width
-                        frames: greenTeapot, 
-                        framesHighDPI: greenTeapotRetina, 
-                        width : 540, 
-                        height: 540,  
-                        flex : {"w" :  true},  // optional - default false - needed if element is % at breakpoint
-                        backgroundOffsetY: -50,  
-                     },   
-                     {
-                        breakpoint: 768,  //max width
-                        frames: blueTeapot, 
-                        framesHighDPI: blueTeapotRetina, 
-                        flex : {"w" :  true},   // optional - default false - needed if element is % at breakpoint
-                        width : 540, 
-                        height: 540,  
-                        backgroundOffsetY: 10, 
-                     }
-                ],
-                
-                progressUpdate :function() {  myProgressUpdate(); },  
-                angleUpdate : function() {  myAngleUpdate(); },  
-                stateUpdate: function() {  myStateUpdate(); },
-                responsiveUpdate: function() {  myResponsiveUpdate(); }
-         });
-
-    });
-    
-    var $b, $c, $d, $e, $f;
-    $b = $('.info li[data-id="loadingProgress"]') 
-    $c = $('.info li[data-id="currentFrame"]') 
-    $d = $('.info li[data-id="currentImage"]');
-    $e = $('.instructions');     
-    $f = $('.info li[data-id="stateUpdate"]');
-        
-     function myResponsiveUpdate(){
-		
-		//reset loader properties
-		$('#loader').removeClass('opacity0');     
-		$('#myEase360 canvas').removeClass('opacity1');    
-		$("#loader").css({"z-index" :  1000}); 
-
-    }   
-       
-    function myProgressUpdate() {
-
-         var v =  Math.floor(myEase360.progress * 100 );
-         
-         $b.html("framesloaded: " + v  +  "%" );
-    	 if( v <= 100 )$('#progress').css('width',   v  + '%');
-    	
-    	//if we are loaded
-    	 if( v == 100 ){
-
-    		 	 $('#loader').delay(1000).queue(function( ){ 
-    		 	 	  
-    		 	 	 $(this).addClass('opacity0');     
-    		 	 	 $('#myEase360 canvas').addClass('opacity1');    
-			         $(this).css({"z-index" : 0}); 
-			         $('#progress').css('width', '0%');
-			         $(this).dequeue();
-		         
-         		});
-    	}
-    }
-    
-    
-   function myAngleUpdate() {
-         
-        if (  myEase360 == null) return;
-        
-        $c.html("current angle: " +  myEase360.timeline.angle + "°");
-        $e.not('.opacity0').addClass('opacity0');
-
-        if(!myEase360.images.length) return;  //if we are on a set that hasnt yet been loaded
-        var imagepath = myEase360.images[myEase360.timeline.angle].src;
-        var n = imagepath.lastIndexOf("/");
-        imagepath = imagepath.substring(n+1, imagepath.length);
-        $d.html("current image: " +  imagepath);
-         
-    }
-    
-
-    function myStateUpdate() {
-                    
-        $f.html("stateUpdate: " + myEase360.states.status);
-        $f.removeClass("opacity0").delay(1000).queue(function( ){ 
-                            
-             $(this).addClass("opacity0");  //helper CSS found on examples.css
-             $(this).dequeue();
-             
-        });
-
-     }
 ```
 
 #### Browser support
