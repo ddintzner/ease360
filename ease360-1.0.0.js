@@ -1,29 +1,32 @@
-/*
+/*!
 
   ____   __   ____  ____     ____   ___   __       __  ____
  (  __) / _\ / ___)(  __)   ( __ \ / __) /  \    _(  )/ ___)
- ) _) /    \\___ \ ) _)     (__  ((  _ \(  0 )_ / \) \\___ \
+  ) _)  /    \\___ \ ) _)   (__  ((  _ \(  0 )_ / \) \\___ \
  (____)\_/\_/(____/(____)   (____/ \___/ \__/(_)\____/(____/
 
- Version: 0.2.75
+ Version: 1.0.0
  Author: Derek Dintzner
- Company: INNOCEANUSA
- Website: http://ease360.inoceanusa.com
+ Website: https://github.com/ddintzner/ease360
 
+ Changelog:
+   1.0.0 - Removed jQuery dependency. Zero external dependencies.
+           Legacy jQuery shim available in ease360.jquery.js.
+           All settings, methods, and callbacks unchanged.
 
  */
 
 ( function(factory) {
-		'use strict';     
+		'use strict';
 		if ( typeof define === 'function' && define.amd) {
-			define(['jquery'], factory);
+			define([], factory);
 		} else if ( typeof exports !== 'undefined') {
-			module.exports = factory(require('jquery'));
+			module.exports = factory();
 		} else {
-			factory(jQuery);
+			factory();
 		}
 
-	}(function($) {
+	}(function() {
 
 		'use strict';
 
@@ -144,9 +147,9 @@
 						
 					};
 
-					$.extend(_, _.defaults);
+					extend(_, _.defaults);
 
-					$.extend(_, settings);
+					extend(_, settings);
 
 					_.timeline.angle = _.startAngle;
 					_.physics.position = _.timeline.angle * 10;
@@ -238,9 +241,7 @@
 				}
 
 				// set our window listener
-				$(window).bind('resize._', function() {
-					_.resize()
-				});
+				window.addEventListener('resize', function() { _.resize(); });
 
 
 				// will add the default node to the front of the array
@@ -279,9 +280,7 @@
 				
 
 				// set our window listener
-				$(window).bind('resize._', function() {
-					_.resize()
-				});
+				window.addEventListener('resize', function() { _.resize(); });
 
 			}
 
@@ -297,8 +296,8 @@
 					"h" : 1
 				};
 				_.windowSize = {
-					"w" : $(window).width(),
-					"h" : $(window).height()
+					"w" : window.innerWidth,
+					"h" : window.innerHeight
 				};
 			}
 		}
@@ -333,33 +332,40 @@
 
 			var _ = this;
 
-			var _width = _.el.css("width");
+			var elStyle = window.getComputedStyle(_.el[0]);
+			var _width = elStyle.width;
 			//get our target width
-			var _height = _.el.css("height");
+			var _height = elStyle.height;
 			//and height
 
 			// we are a percentage
 			if (_width.includes("%")) {
 
-				var parentWidth = _.el.offsetParent().width();
+				var parentWidth = _.el[0].offsetParent ? _.el[0].offsetParent.offsetWidth : _.el[0].parentNode.offsetWidth;
 				_width = _width.substring(0, _width.length - 1);
 				_width *= .01;
 				_width = parentWidth * _width;
+			} else {
+				_width = parseFloat(_width);
 			}
 
 			// we are a percentage
 			if (_height.includes("%")) {
 
-				var parentHeight = _.el.parent().height();
+				var parentHeight = _.el[0].parentNode.offsetHeight;
 				_height = _height.substring(0, _height.length - 1);
 				_height *= .01;
 				_height = parentHeight * _height;
 
+			} else {
+				_height = parseFloat(_height);
 			}
 
-			_.el.find("canvas").width(_width);
-			//set our canvas element to be the same
-			_.el.find("canvas").height(_height);
+			var canvasEl = _.el[0].querySelector("canvas");
+			if (canvasEl) {
+				canvasEl.style.width  = _width  + 'px';
+				canvasEl.style.height = _height + 'px';
+			}
 
 			_.canvas.c.width = _.canvas.width = _width;
 			_.canvas.c.height = _.canvas.height = _height;
@@ -386,7 +392,7 @@
 			function resizedw() {
 
 				clearTimeout(_.resizeTimer);
-				var w = $(window).width();
+				var w = window.innerWidth;
 
 				//if we are not in a responsive set
 				/* 	*/
@@ -430,14 +436,14 @@
 
 			if (previousActive == _.responsiveActive) {
 
-				var _width = _.el.width();
+				var _width = _.el[0].offsetWidth;
 				//get our target width
-				var _height = _.el.height();
+				var _height = _.el[0].offsetHeight;
 				//and height
 
-				_.el.find("canvas").width(_width);
+				_.el[0].querySelector("canvas").style.width = _width + "px";
 				//set our canvas element to be the same
-				_.el.find("canvas").height(_height);
+				_.el[0].querySelector("canvas").style.height = _height + "px";
 
 				_.canvas.c.width = _.canvas.width = _width;
 				_.canvas.c.height = _.canvas.height = _height;
@@ -529,14 +535,14 @@
 				_.totalframes = _.responsive[0].totalframes;
 				_.loadedSet = _.currentSet;
 
-				var _width = _.el.width();
+				var _width = _.el[0].offsetWidth;
 				//get our target width
-				var _height = _.el.height();
+				var _height = _.el[0].offsetHeight;
 				//and height
 
-				_.el.find("canvas").width(_width);
+				_.el[0].querySelector("canvas").style.width = _width + "px";
 				//set our canvas element to be the same
-				_.el.find("canvas").height(_height);
+				_.el[0].querySelector("canvas").style.height = _height + "px";
 
 				_.canvas.c.width = _.canvas.width = _width;
 				_.canvas.c.height = _.canvas.height = _height;
@@ -569,14 +575,14 @@
 				_.totalframes = _.responsive[_.responsiveActive].totalframes;
 				_.loadedSet = _.currentSet;
 
-				var _width = _.el.width();
+				var _width = _.el[0].offsetWidth;
 				//get our target width
-				var _height = _.el.height();
+				var _height = _.el[0].offsetHeight;
 				//and height
 
-				_.el.find("canvas").width(_width);
+				_.el[0].querySelector("canvas").style.width = _width + "px";
 				//set our canvas element to be the same
-				_.el.find("canvas").height(_height);
+				_.el[0].querySelector("canvas").style.height = _height + "px";
 
 				_.canvas.c.width = _.canvas.width = _width;
 				_.canvas.c.height = _.canvas.height = _height;
@@ -643,9 +649,10 @@
 			//callback
 			_.responsiveUpdateFunc();
 
-			_.el.unbind();
+			_.el[0].classList.remove("ease360");
+			_.uninitializeEvents();
 			//$( _.el.selector ).empty();
-			_.el.find("canvas").remove();
+			var _cv = _.el[0].querySelector("canvas"); if (_cv) _cv.parentNode.removeChild(_cv);
 
 			_.createImagesSet();
 			_.buildOut();
@@ -862,27 +869,17 @@
 		Ease360.prototype.initializeEvents = function() {
 
 			var _ = this;
+			var el = _.el[0];
 
 			//bind mobile events for 360
-			_.el.bind("touchstart", function(e) {
-				_.startInteract(e)
-			});
-			_.el.bind("touchmove", function(e) {
-				_.moveInteract(e)
-			});
-			_.el.bind("touchend", function(e) {
-				_.endInteract(e)
-			});
+			el.addEventListener("touchstart", function(e) { _.startInteract(e); });
+			el.addEventListener("touchmove",  function(e) { _.moveInteract(e);  });
+			el.addEventListener("touchend",   function(e) { _.endInteract(e);   });
 
-			_.el.bind("mousedown", function(e) {
-				_.startInteract(e)
-			});
-			_.el.bind("mousemove", function(e) {
-				_.moveInteract(e)
-			});
-			_.el.bind("mouseup mouseout", function(e) {
-				_.endInteract(e)
-			});
+			el.addEventListener("mousedown",  function(e) { _.startInteract(e); });
+			el.addEventListener("mousemove",  function(e) { _.moveInteract(e);  });
+			el.addEventListener("mouseup",    function(e) { _.endInteract(e);   });
+			el.addEventListener("mouseout",   function(e) { _.endInteract(e);   });
 
 		};
 
@@ -890,8 +887,11 @@
 
 			var _ = this;
 
-			//bind mobile events for 360
-			_.el.unbind();
+			// Remove all event listeners by replacing the element with a clone
+			var el = _.el[0];
+			var clone = el.cloneNode(true);
+			el.parentNode.replaceChild(clone, el);
+			_.el[0] = clone;
 
 		};
 
@@ -902,11 +902,17 @@
 			_.states.destroy = true;
 			_.stopInterval();
 
-			$(window).unbind('resize._');
+			window.removeEventListener('resize', function() { _.resize(); });
 
-			_.el.unbind();
+			// Remove all element event listeners via clone replacement
+			var el = _.el[0];
+			if (el && el.parentNode) {
+				var clone = el.cloneNode(false);
+				el.parentNode.replaceChild(clone, el);
+			}
+
 			//$( _.el.selector ).empty();
-			_.el.find("canvas").remove();
+			var _cv = _.el[0].querySelector("canvas"); if (_cv) _cv.parentNode.removeChild(_cv);
 			_.load.frames = [];
 			_.images = [];
 
@@ -925,8 +931,6 @@
 			_.loadedSet.totalframes = null;
 			_.loadingPosition = 0;
 
-			_.destroy();
-
 		};
 
 		Ease360.prototype.startInteract = function(e) {
@@ -934,8 +938,8 @@
 			var _ = this;
 
 			clearInterval(_.events.mouseEventInterval);
-			_.events.startPos.x = (e.clientX) ? e.clientX : e.originalEvent.touches[0].pageX;
-			_.events.startPos.y = (e.clientX) ? e.clientY : e.originalEvent.touches[0].pageY;
+			_.events.startPos.x = (e.clientX) ? e.clientX : e.touches[0].pageX;
+			_.events.startPos.y = (e.clientX) ? e.clientY : e.touches[0].pageY;
 
 			_.events.activatedGestureEvent = true;
 			_.events.touchdirection = null;
@@ -979,8 +983,8 @@
 			//is our mouse down?
 	     	if (_.events.startPos.x == null || _.events.startPos.y == null) return;
 
-			_.events.currentPos.x = (e.clientX) ? e.clientX : e.originalEvent.touches[0].pageX;
-			_.events.currentPos.y = (e.clientY) ? e.clientY : e.originalEvent.touches[0].pageY;
+			_.events.currentPos.x = (e.clientX) ? e.clientX : e.touches[0].pageX;
+			_.events.currentPos.y = (e.clientY) ? e.clientY : e.touches[0].pageY;
 
 			//if its the first time on the move
 
@@ -1123,16 +1127,16 @@
 			docFrag.appendChild(_canvas);
 
 			// Append DocumentFragment to body
-			_.el.append(docFrag);
+			_.el[0].appendChild(docFrag);
 
-			var _width = this.el.width();
+			var _width = this.el[0].offsetWidth;
 			//get our target width
-			var _height = this.el.height();
+			var _height = this.el[0].offsetHeight;
 			//and height
 
-			_.el.find("canvas").width(_width);
+			_.el[0].querySelector("canvas").style.width = _width + "px";
 			//set our canvas element to be the same
-			_.el.find("canvas").height(_height);
+			_.el[0].querySelector("canvas").style.height = _height + "px";
 
 			_.canvas.c = _canvas;
 			_.canvas.ctx = _canvas.getContext("2d");
@@ -1141,7 +1145,7 @@
 
 			_.preload();
 
-			_.el.addClass("ease360");
+			_.el[0].classList.add("ease360");
 
 		}
 		
@@ -1185,13 +1189,13 @@
 			var dWidth,
 			    dHeight;
 
-			_.canvas.c.height = (_.el.height() * _.states.factoring);
+			_.canvas.c.height = (_.el[0].offsetHeight * _.states.factoring);
 			// scale up when canvas
-			_.canvas.c.width = (_.el.width() * _.states.factoring);
+			_.canvas.c.width = (_.el[0].offsetWidth * _.states.factoring);
 
-			_.canvas.c.style.height = _.el.height() + 'px';
+			_.canvas.c.style.height = _.el[0].offsetHeight + 'px';
 			// scale down when canvas  syle to viewing size
-			_.canvas.c.style.width = _.el.width() + 'px';
+			_.canvas.c.style.width = _.el[0].offsetWidth + 'px';
 
 			_.canvas.ctx.scale(_.states.factoring, _.states.factoring);
 
@@ -1200,7 +1204,7 @@
 			var basediff = (_.states.factoring > 1) ? 2 : 1;
 
 			//if the canvas element is width is greater than its height
-			if (_.el.width() < _.el.height()) {
+			if (_.el[0].offsetWidth < _.el[0].offsetHeight) {
 
 				diffImageRatio = (_.canvas.c.width / _.canvas.c.height ) * img.height;
 
@@ -1781,27 +1785,36 @@
 
 		}
 
-		//make it a plugin
+		// ── Vanilla factory function ──────────────────────────────────────
+		// Accepts a CSS selector string or a raw DOM element.
+		// Returns the Ease360 instance directly.
 
-		$.fn.ease360 = function() {
+		function ease360(element, options) {
 
-			var _ = this,
-			    opt = arguments[0],
-			    args = Array.prototype.slice.call(arguments, 1),
-			    l = _.length,
-			    i,
-			    ret;
-			for ( i = 0; i < l; i++) {
-				if ( typeof opt == 'object' || typeof opt == 'undefined') {
-					_ = new Ease360(_[i], opt, $(this));
-				} else
-					ret = _.ease360[opt].apply(_[i].ease360, args);
-				if ( typeof ret != 'undefined')
-					return ret;
-			}
-			return _;
+			var el = (typeof element === 'string')
+				? document.querySelector(element)
+				: element;
 
-		};
+			if (!el) throw new Error('ease360: element not found — "' + element + '"');
+
+			// Wrap in a minimal array-like so internal _.el[0] references work,
+			// while also exposing the single-element jQuery-compatible surface
+			// that _.el.width() calls have been rewritten to use ([0].offsetWidth).
+			var elWrapper = [el];
+
+			return new Ease360(el, options || {}, elWrapper);
+		}
+
+		ease360.VERSION = '1.0.0';
+
+		// Expose as UMD global
+		if (typeof module === 'object' && module.exports) {
+			module.exports = ease360;
+		} else if (typeof define === 'function' && define.amd) {
+			define(function() { return ease360; });
+		} else {
+			window.ease360 = ease360;
+		}
 
 	}));
 
