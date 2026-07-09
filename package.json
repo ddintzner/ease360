@@ -38,7 +38,7 @@
   "homepage": "https://ease360.dintzner.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ddintzner/ease360.git"
+    "url": "git+https://github.com/ddintzner/ease360.git"
   },
   "bugs": {
     "url": "https://github.com/ddintzner/ease360/issues"
