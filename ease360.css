@@ -1,20 +1,18 @@
+/* ── ease360° ────────────────────────────────────────────────────────────────
+   Core styles for the 360° viewer element.
+   Include this alongside ease360-1.0.0.min.js.
+   ─────────────────────────────────────────────────────────────────────────── */
 
- .ease360{
-     
-     cursor: move; /* fallback if grab cursor is unsupported */
-     cursor: grab;
-     cursor: -moz-grab;
-     cursor: -webkit-grab;
- }
- 
+.ease360 {
+    cursor: grab;
+    /* Prevent the browser claiming touch gestures for page scroll —
+       required for pointer events to fire reliably on mobile/tablet. */
+    touch-action: none;
+    /* Prevent text/image selection during drag on desktop and iOS. */
+    user-select: none;
+    -webkit-user-select: none;
+}
 
-
- .ease360:active { 
-     
-      cursor: grabbing;
-      cursor: -moz-grabbing;
-      cursor: -webkit-grabbing;
- }
-         
-         
-         
+.ease360:active {
+    cursor: grabbing;
+}
