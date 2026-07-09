@@ -1,6 +1,6 @@
 {
   "name": "ease360",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A physics-based 360° image spin framework. Vanilla JS, zero dependencies.",
   "main": "ease360-1.0.0.min.js",
   "module": "ease360-1.0.0.js",
