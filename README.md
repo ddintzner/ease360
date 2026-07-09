@@ -24,7 +24,7 @@ See [CHANGELOG.md](CHANGELOG.md) for full release history.
 
 - ✅ **jQuery removed** — zero runtime dependencies
 - ✅ **Same API** — all settings, methods, and callbacks unchanged
-- ✅ **jQuery shim** — `ease360.jquery.js` keeps old `$('#el').ease360()` code working
+- ✅ **jQuery shim** — `ease360.jquery.js` kept in `/archive/` for gradual migration from v0.x
 - ✅ **UMD build** — works with AMD, CommonJS, ESM, or a plain `<script>` tag
 - ✅ **New `destroy()` method** — cleans up canvas and events
 
@@ -83,7 +83,7 @@ If your project already uses the jQuery plugin pattern and you want to upgrade i
 <script src="jquery.min.js"></script>
 
 <!-- Compatibility shim — old code works untouched -->
-<script src="ease360.jquery.js"></script>
+<script src="archive/ease360.jquery.js"></script>
 ```
 
 Your existing code continues to work:
@@ -233,8 +233,8 @@ ease360° works in all modern browsers.
 |---|---|
 | `ease360-1.0.0.js` | Full annotated source |
 | `ease360-1.0.0.min.js` | Minified production build |
-| `ease360.jquery.js` | Legacy jQuery plugin shim — annotated source |
-| `ease360.jquery.min.js` | Legacy jQuery plugin shim — minified |
+| `ease360.jquery.js` *(archive)* | Legacy jQuery plugin shim — see `/archive/` |
+| `ease360.jquery.min.js` *(archive)* | Legacy jQuery plugin shim — minified — see `/archive/` |
 
 ---
 

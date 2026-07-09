@@ -4,7 +4,7 @@ All notable changes to ease360° are documented here.
 
 ---
 
-## [1.0.0] — 2026
+## [1.0.0] — 2026-07-09
 
 - **Breaking:** jQuery dependency removed. Core is now zero-dependency vanilla JS.
 - New UMD build — works with AMD, CommonJS, ESM, and global script tags.
@@ -12,6 +12,12 @@ All notable changes to ease360° are documented here.
 - `ease360(selector, options)` factory function replaces the jQuery plugin pattern.
 - CSS selector string or DOM element both accepted as first argument.
 - New `destroy()` method removes canvas and unbinds all events.
+- Modernized event handling — Pointer Events API (`pointerdown`, `pointermove`, `pointerup`, `pointercancel`). Unifies mouse, touch, and stylus input. `setPointerCapture()` added for reliable drag tracking outside the element boundary.
+- `width` and `height` settings renamed to `sourceWidth` and `sourceHeight`. Legacy `width`/`height` still accepted with a deprecation warning.
+- `touchdirection` renamed to `dragDirection`. Legacy `touchdirection` and `dragAxis` still accepted with deprecation warnings.
+- `sourceWidth` and `sourceHeight` are now optional. When omitted, ease360° probes `frames[0]` for dimensions automatically. Provide both to skip the probe: synchronous init, no CORS dependency.
+- Fixed `backgroundOffsetY` / `backgroundOffsetX` being ignored when `backgroundSize` is `'cover-center'`.
+- `ease360.css` — added `touch-action: none` and `user-select: none` to `.ease360` for reliable pointer event handling on mobile and tablet.
 
 ---
 
