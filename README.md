@@ -1,4 +1,4 @@
-<img src="ease360-logo.png" alt="ease360°" height="80">
+<img src="https://raw.githubusercontent.com/ddintzner/ease360/main/ease360-logo.png" alt="ease360°" height="80">
 
 > A modern JS framework for silky smooth 360°s.
 
