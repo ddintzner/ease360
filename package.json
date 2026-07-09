@@ -1,0 +1,46 @@
+{
+  "name": "ease360",
+  "version": "1.0.0",
+  "description": "A physics-based 360° image spin framework. Vanilla JS, zero dependencies.",
+  "main": "ease360-1.0.0.min.js",
+  "module": "ease360-1.0.0.js",
+  "exports": {
+    ".": {
+      "import": "./ease360-1.0.0.js",
+      "require": "./ease360-1.0.0.min.js",
+      "default": "./ease360-1.0.0.min.js"
+    },
+    "./css": "./ease360.css",
+    "./cdn": "./ease360.cdn.js"
+  },
+  "files": [
+    "ease360-1.0.0.js",
+    "ease360-1.0.0.min.js",
+    "ease360.css",
+    "ease360.cdn.js",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "keywords": [
+    "360",
+    "360-viewer",
+    "product-viewer",
+    "image-spin",
+    "physics",
+    "canvas",
+    "vanilla-js",
+    "no-dependencies",
+    "responsive",
+    "cloudinary"
+  ],
+  "author": "Derek Dintzner",
+  "license": "MIT",
+  "homepage": "https://ease360.dintzner.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ddintzner/ease360.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ddintzner/ease360/issues"
+  }
+}
