@@ -1,12 +1,12 @@
 /*!
- * ease360° jQuery Legacy Shim v1.0.0
- * Maps the jQuery plugin API ($('#el').ease360(options)) to ease360 v1.0.
+ * ease360° jQuery Legacy Shim v1.0.5
+ * Maps the jQuery plugin API ($('#el').ease360(options)) to ease360 v1.0.5.
  *
  * Usage:
- *   Include AFTER both ease360-1.0.0.js AND jQuery.
+ *   Include AFTER both ease360-1.0.5.js AND jQuery.
  *
  *   <!-- new core (no jQuery needed) -->
- *   <script src="ease360-1.0.0.js"></script>
+ *   <script src="ease360-1.0.5.js"></script>
  *
  *   <!-- optional shim only if you have legacy code using the jQuery pattern -->
  *   <script src="jquery.js"></script>
@@ -17,6 +17,16 @@
  *   viewer.angle(90);
  *   viewer.angleTo(180, 0.5);
  *
+ * Changelog:
+ *   1.0.5 - Aligned with ease360 v1.0.5.
+ *           Fixed method forwarding: 'changeFrame' → 'changeFrames' (the name the
+ *           core actually exposes), and added 'angleSet' and 'stopAllIntervals'.
+ *           Fixed chaining: core methods return undefined, so the proxy now returns
+ *           itself for any call that doesn't return a value (angle() with no
+ *           argument still returns the current angle).
+ *           CommonJS require() now points to ../ease360-1.0.5 (this shim lives in archive/).
+ *   1.0.0 - Initial release.
+ *
  * Copyright (c) 2016–2026 Derek Dintzner
  * Licensed under the MIT license.
  */
@@ -26,7 +36,7 @@
   if (typeof define === 'function' && define.amd) {
     define(['jquery', 'ease360'], factory);
   } else if (typeof module === 'object' && module.exports) {
-    factory(require('jquery'), require('./ease360-1.0.0'));
+    factory(require('jquery'), require('../ease360-1.0.5'));
   } else {
     factory(window.jQuery || window.$, window.ease360);
   }
@@ -38,17 +48,19 @@
     return;
   }
   if (!ease360) {
-    throw new Error('ease360 jQuery shim: ease360 core not found. Include ease360-1.0.0.js before this shim.');
+    throw new Error('ease360 jQuery shim: ease360 core not found. Include ease360-1.0.5.js before this shim.');
   }
 
   // Store instances keyed to DOM elements via jQuery .data()
   var DATA_KEY = 'ease360-instance';
 
-  // List of methods that return the instance (for jQuery chain-friendly proxy)
+  // Public instance methods forwarded by the proxy. These must match the
+  // method names on the ease360 core exactly.
   var INSTANCE_METHODS = [
-    'angle', 'angleTo', 'angleStep',
+    'angle', 'angleTo', 'angleStep', 'angleSet',
     'spinOver', 'spinOut',
     'changeFrames', 'changeFramesResponsive',
+    'stopAllIntervals',
     'destroy'
   ];
 
@@ -57,9 +69,8 @@
    * the full API. When methods are called via the jQuery plugin pattern
    * (e.g. viewer.angleTo(90)), they delegate to the real instance.
    *
-   * The proxy also has a chainable jQuery reference so:
+   * Methods that return nothing hand back the proxy so calls can be chained:
    *   $('#el').ease360(opts).angleTo(90).spinOver(1);
-   * works exactly as before.
    */
   function ShimProxy(instance, jqEl) {
     this._instance = instance;
@@ -70,8 +81,9 @@
   INSTANCE_METHODS.forEach(function (method) {
     ShimProxy.prototype[method] = function () {
       var result = this._instance[method].apply(this._instance, arguments);
-      // If the real method returned the instance (for chaining), return the proxy
-      return result === this._instance ? this : result;
+      // Core methods return undefined (setters/actions) — return the proxy so
+      // chaining works. Getters (e.g. angle() with no args) return their value.
+      return (result === undefined || result === this._instance) ? this : result;
     };
   });
 
