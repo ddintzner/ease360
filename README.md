@@ -4,7 +4,9 @@
 
 **v1.0.5** — jQuery-free. Zero dependencies. ~32 KB minified.
 
-**License:** MIT &nbsp;|&nbsp; **Version:** 1.0.5 &nbsp;|&nbsp; [Changelog](CHANGELOG.md)
+**Docs & live examples: [ease360.dintzner.com](https://ease360.dintzner.com)**
+
+**License:** MIT &nbsp;|&nbsp; **Version:** 1.0.5 &nbsp;|&nbsp; [Docs & Demos](https://ease360.dintzner.com) &nbsp;|&nbsp; [Changelog](CHANGELOG.md)
 
 ---
 
@@ -36,6 +38,20 @@ See [CHANGELOG.md](CHANGELOG.md) for full release history.
 - ✅ **jQuery shim** — `ease360.jquery.js` kept in `/archive/` for gradual migration from v0.x
 - ✅ **UMD build** — works with AMD, CommonJS, ESM, or a plain `<script>` tag
 - ✅ **New `destroy()` method** — cleans up canvas and events
+
+---
+
+## Updated: the ease360° docs site
+
+⚡ **[ease360.dintzner.com](https://ease360.dintzner.com)** is the new home for documentation and live, interactive examples. Every example is a working viewer you can drag, with the code shown beside it.
+
+- 📘 **[Full reference](https://ease360.dintzner.com/index.php#settings)** — every setting, method, property, and callback
+- 🚀 **[Ex 1 — Basic setup](https://ease360.dintzner.com/examples/ex1.php)** — install, frame arrays, `sourceWidth` / `sourceHeight`, and your first viewer
+- 🎛️ **[Ex 2 — Callbacks & control](https://ease360.dintzner.com/examples/ex2.php)** — `progressUpdate`, `angleUpdate`, `stateUpdate`, `preloadSmart` loaders, goto buttons, keyboard, and hover-to-spin
+- 📱 **[Ex 3 — Responsive breakpoints](https://ease360.dintzner.com/examples/ex3.php)** — swap frame sets per viewport width, including right-sized sets for mobile
+- 🎨 **[Ex 4 — Change color](https://ease360.dintzner.com/examples/ex4.php)** — runtime `changeFrames()` for color and finish pickers, with loader orchestration
+- ☁️ **[Ex 5 — CDN helper & Cloudinary](https://ease360.dintzner.com/examples/ex5.php)** — build frame URLs from a single master image
+- 🛠️ **[Common errors & debugging](https://ease360.dintzner.com/examples/common-errors.php)** — blank canvas, CORS, wrong frame index, 50% progress jumps, jagged edges on mobile, and more
 
 ---
 
