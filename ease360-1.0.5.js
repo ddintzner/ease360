@@ -5,14 +5,37 @@
   ) _)  /    \\___ \ ) _)   (__  ((  _ \(  0 )_ / \) \\___ \
  (____)\_/\_/(____/(____)   (____/ \___/ \__/(_)\____/(____/
 
- Version: 1.0.0
+ Version: 1.0.5
  Author: Derek Dintzner
  Website: https://github.com/ddintzner/ease360
 
  Changelog:
+   1.0.5 - sourceWidth and sourceHeight are now optional. When omitted, ease360°
+           probes the first frame to read naturalWidth/naturalHeight automatically.
+           If sourceWidth/sourceHeight are provided they are used directly with no
+           probe and no overhead. CORS failures produce a clear console.error with
+           fix instructions. onerror on probe also surfaces a clear message.
+           Fixed an uncaught TypeError in the draw loop when a drag began with the
+           physics position at exactly 0 (frame index -1 resolved to a negative
+           angle). engine() now wraps to the end of the sequence and canvasDraw()
+           ignores missing frames. ease360.VERSION now reports 1.0.5.
+           Canvas context uses imageSmoothingQuality = 'high' (re-applied each draw,
+           since resizing a canvas resets it) for cleaner large-to-small downscales.
+           Responsive sets may now have different frame counts (e.g. 72 on desktop,
+           36 on mobile): on a breakpoint swap the angle snaps onto the new set's
+           frame grid instead of requesting a missing frame ('undefined') and leaving
+           the canvas blank until the next drag.
+   1.0.4 - Fixed backgroundOffsetY/X being ignored when backgroundSize is
+           'cover-center'. Offsets are now applied as post-calculations on
+           top of the centered position, shifting relative to center.
+   1.0.3 - dragAxis renamed to dragDirection for clarity. Legacy dragAxis and
+           touchdirection still accepted with console deprecation warnings.
+   1.0.2 - Modernized event handling to use the Pointer Events API.
+           touchdirection renamed to dragAxis (now further renamed to dragDirection).
+   1.0.1 - Renamed width/height settings to sourceWidth/sourceHeight.
+           Legacy width/height still accepted with a console deprecation warning.
    1.0.0 - Removed jQuery dependency. Zero external dependencies.
            Legacy jQuery shim available in ease360.jquery.js.
-           All settings, methods, and callbacks unchanged.
 
  */
 
@@ -104,7 +127,7 @@
 							interactStart : false,
 							mouseEventInterval : undefined
 						},
-						eventDirection : "left-right", // or "up-down, "all", "none""
+						eventDirection : "left-right", // dragAxis values: "left-right" | "up-down" | "all" | "none"
 						timeline : {
 							angle : 0, // t
 							startValue : 0, //b
@@ -151,10 +174,151 @@
 
 					extend(_, settings);
 
+					// ── sourceWidth / sourceHeight normalizer ─────────────────────────────
+					// v1.0.1: settings renamed from width/height to sourceWidth/sourceHeight
+					// to clarify these are the source image dimensions used for canvas math,
+					// not the container/display size.
+					//
+					// Legacy width/height still accepted — mapped here with a deprecation
+					// warning so existing implementations continue to work.
+					if (_.sourceWidth !== undefined) {
+						_.width = _.sourceWidth;
+					} else if (_.width && _.sourceWidth === undefined) {
+						if (typeof console !== 'undefined' && console.warn) {
+							console.warn(
+								'[ease360] The "width" setting is deprecated as of v1.0.1. ' +
+								'Please rename it to "sourceWidth". ' +
+								'"width" will be removed in a future major version.'
+							);
+						}
+						// legacy value already in _.width — no action needed
+					}
+
+					if (_.sourceHeight !== undefined) {
+						_.height = _.sourceHeight;
+					} else if (_.height && _.sourceHeight === undefined) {
+						if (typeof console !== 'undefined' && console.warn) {
+							console.warn(
+								'[ease360] The "height" setting is deprecated as of v1.0.1. ' +
+								'Please rename it to "sourceHeight". ' +
+								'"height" will be removed in a future major version.'
+							);
+						}
+						// legacy value already in _.height — no action needed
+					}
+
+					// Also normalise responsive breakpoints — each entry may use the old
+					// width/height keys or the new sourceWidth/sourceHeight keys.
+					if (_.responsive && _.responsive.length) {
+						_.responsive.forEach(function(bp) {
+							if (bp.sourceWidth !== undefined)  bp.width  = bp.sourceWidth;
+							if (bp.sourceHeight !== undefined) bp.height = bp.sourceHeight;
+						});
+					}
+					// ── end normalizer ────────────────────────────────────────────────────
+
+					// ── dragDirection normalizer ─────────────────────────────────────────
+					// v1.0.3: renamed from dragAxis (v1.0.2) → dragDirection.
+					// Legacy dragAxis and touchdirection still accepted with deprecation warnings.
+					if (_.dragDirection !== undefined) {
+						_.eventDirection = _.dragDirection;
+					} else if (_.dragAxis !== undefined) {
+						if (typeof console !== 'undefined' && console.warn) {
+							console.warn(
+								'[ease360] The "dragAxis" setting is deprecated as of v1.0.3. ' +
+								'Please rename it to "dragDirection". ' +
+								'"dragAxis" will be removed in a future major version.'
+							);
+						}
+						_.eventDirection = _.dragAxis;
+					} else if (_.touchdirection !== undefined) {
+						if (typeof console !== 'undefined' && console.warn) {
+							console.warn(
+								'[ease360] The "touchdirection" setting is deprecated as of v1.0.2. ' +
+								'Please rename it to "dragDirection". ' +
+								'"touchdirection" will be removed in a future major version.'
+							);
+						}
+						_.eventDirection = _.touchdirection;
+					}
+					// ── end normalizer ────────────────────────────────────────────────────
+
 					_.timeline.angle = _.startAngle;
 					_.physics.position = _.timeline.angle * 10;
 
-					_.initStart(true);
+					// ── sourceWidth / sourceHeight probe ──────────────────────────────────
+					// Skip probe if top-level width/height are provided, OR if using a
+					// responsive array where every breakpoint has explicit width/height.
+					var allBpsDefined = _.responsive && _.responsive.length &&
+						_.responsive.every(function(bp) { return bp.width && bp.height; });
+
+					if ((_.width && _.height) || allBpsDefined) {
+
+						_.initStart(true);
+
+					} else {
+
+						// Find the first available frame URL — from frames or responsive array
+						var probeUrl = (_.frames && _.frames[0]) ||
+							(_.responsive && _.responsive[0] && _.responsive[0].frames && _.responsive[0].frames[0]);
+
+						if (!probeUrl) {
+							if (typeof console !== 'undefined' && console.error) {
+								console.error(
+									'[ease360] No frames found to probe for dimensions.\n' +
+									'Provide sourceWidth and sourceHeight explicitly, or ensure frames[] is defined.'
+								);
+							}
+							return;
+						}
+
+						var probeImg = new Image();
+
+						probeImg.onload = function() {
+
+							if (probeImg.naturalWidth === 0 || probeImg.naturalHeight === 0) {
+								if (typeof console !== 'undefined' && console.error) {
+									console.error(
+										'[ease360] Could not read frame dimensions — likely a CORS issue.\n' +
+										'The probe image loaded but naturalWidth/naturalHeight returned 0.\n\n' +
+										'Fix: Ensure your CDN or server sends an Access-Control-Allow-Origin header.\n' +
+										'For Cloudinary: configure CORS in Settings → Security.\n' +
+										'Alternatively, provide sourceWidth and sourceHeight explicitly to skip the probe:\n\n' +
+										'  ease360(\'#viewer\', { frames, sourceWidth: 540, sourceHeight: 360 });'
+									);
+								}
+								return;
+							}
+
+							_.width  = probeImg.naturalWidth;
+							_.height = probeImg.naturalHeight;
+
+							// Propagate probed dimensions to responsive breakpoints without explicit values
+							if (_.responsive && _.responsive.length) {
+								_.responsive.forEach(function(bp) {
+									if (!bp.width)  bp.width  = _.width;
+									if (!bp.height) bp.height = _.height;
+								});
+							}
+
+							_.initStart(true);
+						};
+
+						probeImg.onerror = function() {
+							if (typeof console !== 'undefined' && console.error) {
+								console.error(
+									'[ease360] Probe image failed to load: ' + probeUrl + '\n' +
+									'Check the URL is correct and the asset exists.\n' +
+									'Alternatively, provide sourceWidth and sourceHeight explicitly to skip the probe:\n\n' +
+									'  ease360(\'#viewer\', { frames, sourceWidth: 540, sourceHeight: 360 });'
+								);
+							}
+						};
+
+						probeImg.crossOrigin = 'anonymous';
+						probeImg.src = probeUrl;
+					}
+					// ── end probe ─────────────────────────────────────────────────────────
 
 				}
 
@@ -518,6 +682,20 @@
 			_.currentSet = _.responsive[_.responsiveActive].currentSet;
 			_.loadedSet = _.currentSet;
 
+			// Responsive sets may hold a different number of frames (e.g. 72 on desktop, 36 on mobile).
+			// The viewer can only show angles that are a multiple of the new set's first-loaded step,
+			// so snap the current angle onto that grid. Without this a swap from, say, 155deg into a
+			// 36-frame set leaves no image at that slot: a request for 'undefined' and a blank canvas
+			// until the next drag.
+			var _snapStep = _.loadSet[0].increment;
+			if (_snapStep > 0) {
+				var _snapped = (Math.round(_.timeline.angle / _snapStep) * _snapStep) % 360;
+				if (_snapped !== _.timeline.angle) {
+					_.timeline.angle = _snapped;
+					_.physics.position = _snapped * 10;
+				}
+			}
+
 			// if there are images already contained in the set
 			// if the current responsive set hasnt been loaded, is referencing the master set and the master set has been actived, then =
 
@@ -871,17 +1049,38 @@
 			var _ = this;
 			var el = _.el[0];
 
-			//bind mobile events for 360
-			el.addEventListener("touchstart", function(e) { _.startInteract(e); });
-			el.addEventListener("touchmove",  function(e) { _.moveInteract(e);  });
-			el.addEventListener("touchend",   function(e) { _.endInteract(e);   });
+			// ── Pointer Events API ────────────────────────────────────────────────────
+			// Unified handler for mouse, touch, and stylus input.
+			// setPointerCapture() ensures drag tracking continues even when the pointer
+			// leaves the element boundary mid-drag — critical for wide spin gestures.
+			//
+			// Legacy mouse and touch events below are superseded by Pointer Events
+			// in all modern browsers. Kept as reference only.
+			// ─────────────────────────────────────────────────────────────────────────
 
-			el.addEventListener("mousedown",  function(e) { _.startInteract(e); });
-			el.addEventListener("mousemove",  function(e) { _.moveInteract(e);  });
-			el.addEventListener("mouseup",    function(e) { _.endInteract(e);   });
-			el.addEventListener("mouseout",   function(e) { _.endInteract(e);   });
+			el.addEventListener("pointerdown", function(e) {
+				el.setPointerCapture(e.pointerId);
+				_.startInteract(e);
+			});
+
+			el.addEventListener("pointermove", function(e) {
+				_.moveInteract(e);
+			});
+
+			el.addEventListener("pointerup", function(e) {
+				_.endInteract(e);
+			});
+
+			el.addEventListener("pointercancel", function(e) {
+				_.endInteract(e);
+			});
+
+			// ── Legacy events (superseded by Pointer Events above) ────────────────────
+			// touchstart, touchmove, touchend — handled by pointerdown/move/up
+			// mousedown, mousemove, mouseup, mouseout — handled by pointerdown/move/up/cancel
 
 		};
+
 
 		Ease360.prototype.uninitializeEvents = function() {
 
@@ -938,8 +1137,10 @@
 			var _ = this;
 
 			clearInterval(_.events.mouseEventInterval);
-			_.events.startPos.x = (e.clientX) ? e.clientX : e.touches[0].pageX;
-			_.events.startPos.y = (e.clientX) ? e.clientY : e.touches[0].pageY;
+
+			// Pointer Events always provide clientX/clientY — no touch branch needed
+			_.events.startPos.x = e.clientX;
+			_.events.startPos.y = e.clientY;
 
 			_.events.activatedGestureEvent = true;
 			_.events.touchdirection = null;
@@ -983,8 +1184,9 @@
 			//is our mouse down?
 	     	if (_.events.startPos.x == null || _.events.startPos.y == null) return;
 
-			_.events.currentPos.x = (e.clientX) ? e.clientX : e.touches[0].pageX;
-			_.events.currentPos.y = (e.clientY) ? e.clientY : e.touches[0].pageY;
+			// Pointer Events always provide clientX/clientY — no touch branch needed
+			_.events.currentPos.x = e.clientX;
+			_.events.currentPos.y = e.clientY;
 
 			//if its the first time on the move
 
@@ -1076,7 +1278,7 @@
 
 			var _ = this;
 			if (_.stateUpdate != undefined)
-				_.stateUpdate(_);
+				_.stateUpdate(_.states.status);
 
 		};
 
@@ -1199,6 +1401,12 @@
 
 			_.canvas.ctx.scale(_.states.factoring, _.states.factoring);
 
+			// Resizing a canvas resets its context state, so smoothing is re-applied every pass.
+			// 'high' uses a better downscale filter, which removes stair-stepped edges when a
+			// large frame is drawn into a small (mobile) canvas.
+			_.canvas.ctx.imageSmoothingEnabled = true;
+			if ('imageSmoothingQuality' in _.canvas.ctx) _.canvas.ctx.imageSmoothingQuality = 'high';
+
 			var m = _.states.factoring;
 			var base;
 			var basediff = (_.states.factoring > 1) ? 2 : 1;
@@ -1287,8 +1495,8 @@
 			    sWidth,
 			    sHeight;
 
-			//if the image has not been loaded yet then return
-			if(!img.loaded) {
+			//if the frame doesn't exist, or has not been loaded yet, then return
+			if (!img || !img.loaded) {
 				return;
 			}
 
@@ -1334,10 +1542,15 @@
 				//inflate the size back to the source footage height if true 
 				const centerHeightToSource = ( (_.width/_.height ) < (_.canvasSettings.dWidth / _.canvasSettings.dHeight ) ) ?  Math.abs(centerHeight * (  _.width / _.canvasSettings.dWidth)) : 0; 
 
-				_.canvas.ctx.drawImage(img, _.canvasSettings.sx, centerHeightToSource, _.canvasSettings.sWidth, _.canvasSettings.sHeight, _.canvasSettings.dx, _.canvasSettings.dy, _.canvasSettings.dWidth, _.canvasSettings.dHeight);
-				// dWidth and dHeight are 1/factor when using the retina factoring -- scaled should be norm
+				// Apply backgroundOffsetY/X as post-calculations on top of the centered position.
+				// These are added after centering math so they shift relative to center, not the top-left origin.
+				const devicepixelOffset = _.states.factoring;
+				const finalSy = centerHeightToSource + (_.backgroundOffsetY * devicepixelOffset);
+				const finalSx = _.canvasSettings.sx + (_.backgroundOffsetX * devicepixelOffset);
 
-				const drawImageCover = {"img" : img, "sx" : _.canvasSettings.sx, "sy" :  centerHeightToSource, "sWidth":  _.canvasSettings.sWidth, "sHeight" : _.canvasSettings.sHeight, "dx" :  _.canvasSettings.dx, "dy" : _.canvasSettings.dy, "dWidth" : _.canvasSettings.dWidth, "dHeight" :  _.canvasSettings.dHeight  };
+				_.canvas.ctx.drawImage(img, finalSx, finalSy, _.canvasSettings.sWidth, _.canvasSettings.sHeight, _.canvasSettings.dx, _.canvasSettings.dy, _.canvasSettings.dWidth, _.canvasSettings.dHeight);
+
+				const drawImageCover = {"img" : img, "sx" : finalSx, "sy" : finalSy, "sWidth":  _.canvasSettings.sWidth, "sHeight" : _.canvasSettings.sHeight, "dx" :  _.canvasSettings.dx, "dy" : _.canvasSettings.dy, "dWidth" : _.canvasSettings.dWidth, "dHeight" :  _.canvasSettings.dHeight  };
 
 
 			} else {
@@ -1394,6 +1607,10 @@
 
 			//offset for array  - will give us the frame
 			scaledresult = Math.ceil(scaledresult) * _.loadedSet.engine;
+
+			// physics position of exactly 0 resolves to frame -1 — wrap to the last frame
+			if (scaledresult < 0)
+				scaledresult += 360;
 
 			_.timeline.angle = scaledresult;
 
@@ -1805,7 +2022,7 @@
 			return new Ease360(el, options || {}, elWrapper);
 		}
 
-		ease360.VERSION = '1.0.0';
+		ease360.VERSION = '1.0.5';
 
 		// Expose as UMD global
 		if (typeof module === 'object' && module.exports) {
@@ -1817,4 +2034,3 @@
 		}
 
 	}));
-

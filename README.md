@@ -2,9 +2,9 @@
 
 > A modern JS framework for silky smooth 360°s.
 
-**v1.0.0** — jQuery-free. Zero dependencies. ~28 KB minified.
+**v1.0.5** — jQuery-free. Zero dependencies. ~32 KB minified.
 
-**License:** MIT &nbsp;|&nbsp; **Version:** 1.0.0 &nbsp;|&nbsp; [Changelog](CHANGELOG.md)
+**License:** MIT &nbsp;|&nbsp; **Version:** 1.0.5 &nbsp;|&nbsp; [Changelog](CHANGELOG.md)
 
 ---
 
@@ -43,7 +43,7 @@ See [CHANGELOG.md](CHANGELOG.md) for full release history.
 
 ```html
 <!-- 1. Include the script -->
-<script src="ease360-1.0.0.js"></script>
+<script src="ease360-1.0.5.js"></script>
 
 <!-- 2. Add a container -->
 <div id="viewer"></div>
@@ -65,7 +65,7 @@ See [CHANGELOG.md](CHANGELOG.md) for full release history.
 ### Script tag (CDN / download)
 
 ```html
-<script src="ease360-1.0.0.min.js"></script>
+<script src="ease360-1.0.5.min.js"></script>
 ```
 
 ### npm
@@ -86,7 +86,7 @@ If your project already uses the jQuery plugin pattern and you want to upgrade i
 
 ```html
 <!-- New core — no jQuery required -->
-<script src="ease360-1.0.0.js"></script>
+<script src="ease360-1.0.5.js"></script>
 
 <!-- Your existing jQuery -->
 <script src="jquery.min.js"></script>
@@ -234,6 +234,27 @@ function changeColor(colorFrameSets) {
 
 ---
 
+## Responsive sets: sizing and frame counts
+
+Serve a right-sized frame set for each breakpoint. A 1920px frame drawn into a ~390px phone canvas is a ~5:1 downscale in one step, and thin edges stair-step. A 640px-wide set for phones keeps the browser to roughly 1.5:1 and the edges stay clean. Suggested widths: 1920 · 1440 · 1024 · 768 · 640 · 375.
+
+```js
+responsive: [
+  // Tablet / desktop
+  { breakpoint: 100000, frames: framesFull,   sourceWidth: 1920, sourceHeight: 1080, flex: { w: true } },
+  // Mobile — 640px viewport and below
+  { breakpoint: 641,    frames: frames640w,   sourceWidth: 640,  sourceHeight: 360,  flex: { w: true } }
+]
+```
+
+- **Order:** list sets large to small. ease360° activates the last entry whose `breakpoint` is above the viewport width, so `641` means "640px and below". The initial load compares with `<` and a later resize with `<=`; the two differ only at a viewport of exactly the breakpoint value.
+- **Sizes:** `sourceWidth` / `sourceHeight` must match the delivered size of that set, not the master.
+- **Frame counts may differ per set** (for example 72 on desktop, 36 on mobile). Each count must divide evenly into 360. On a breakpoint swap the angle snaps to the nearest frame the new set has.
+- **Retina:** `framesHighDPI` is no longer used. Ship the right-sized set instead.
+- **DOM:** when a set swaps, ease360° replaces the viewer element with a clone to drop old listeners. Look up child elements (loaders, overlays) when you need them instead of keeping references.
+
+---
+
 ## Browser support
 
 ease360° works in all modern browsers.
@@ -244,8 +265,11 @@ ease360° works in all modern browsers.
 
 | File | Description |
 |---|---|
-| `ease360-1.0.0.js` | Full annotated source |
-| `ease360-1.0.0.min.js` | Minified production build |
+| `ease360-1.0.5.js` | Full annotated source |
+| `ease360-1.0.5.min.js` | Minified production build |
+| `ease360.css` | Required styles for the viewer (`touch-action`, `user-select`) |
+| `ease360.cdn.js` | Optional CDN helper (Cloudinary URL builder) |
+| `archive/` | Previous builds (0.x and 1.0.0) |
 | `ease360.jquery.js` *(archive)* | Legacy jQuery plugin shim — see `/archive/` |
 | `ease360.jquery.min.js` *(archive)* | Legacy jQuery plugin shim — minified — see `/archive/` |
 

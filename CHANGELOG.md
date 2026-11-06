@@ -4,6 +4,24 @@ All notable changes to ease360° are documented here.
 
 ---
 
+## [1.0.5] — 2026-11-06
+
+- **The 1.0.0 build did not contain several features documented under 1.0.0.** `ease360-1.0.0.js` (GitHub, and npm 1.0.0 and 1.0.2) still used the legacy mouse and touch handlers and read only `width` / `height`. 1.0.5 is the build that implements them:
+  - `sourceWidth` / `sourceHeight` (legacy `width` / `height` still accepted with a warning), optional with a probe of `frames[0]`, including a clear console error for CORS and load failures.
+  - `dragDirection` (legacy `dragAxis` and `touchdirection` still accepted with warnings).
+  - Pointer Events (`pointerdown`, `pointermove`, `pointerup`, `pointercancel`) with `setPointerCapture()`.
+  - `backgroundOffsetX` / `backgroundOffsetY` now apply with `'cover-center'`.
+  - `stateUpdate` receives the status string (`'init'` | `'start'` | `'active'` | `'stop'`).
+- Fixed an uncaught `TypeError` in the draw loop when a drag began with the physics position at exactly 0 (frame index -1). `engine()` now wraps negative angles and `canvasDraw()` ignores frames that are missing or not loaded yet.
+- Responsive sets may now have different frame counts (for example 72 on desktop, 36 on mobile). On a breakpoint swap the angle snaps onto the new set's frame grid, instead of requesting a missing frame (`undefined`) and leaving the canvas blank until the next drag.
+- The canvas context uses `imageSmoothingQuality = 'high'`, re-applied on every draw because resizing a canvas resets it.
+- `ease360.VERSION` reports `1.0.5`.
+- Files: `ease360-1.0.5.js` and `ease360-1.0.5.min.js` replace the 1.0.0 builds, which move to `archive/`.
+- `archive/ease360.jquery.js` shim: forwards `changeFrames` (it previously forwarded the non-existent `changeFrame`), adds `angleSet` and `stopAllIntervals`, supports chaining, and requires `../ease360-1.0.5`.
+- Docs: new README section on responsive set sizing (right-sized sets per breakpoint fix mobile edge aliasing).
+
+---
+
 ## [1.0.0] — 2026-07-09
 
 - **Breaking:** jQuery dependency removed. Core is now zero-dependency vanilla JS.
