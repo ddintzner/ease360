@@ -5,11 +5,16 @@
   ) _)  /    \\___ \ ) _)   (__  ((  _ \(  0 )_ / \) \\___ \
  (____)\_/\_/(____/(____)   (____/ \___/ \__/(_)\____/(____/
 
- Version: 1.0.5
+ Version: 1.0.6
  Author: Derek Dintzner
  Website: https://github.com/ddintzner/ease360
 
  Changelog:
+   1.0.6 - Fixed a frame-lookup rounding bug: (angle / 360) * totalframes is now
+           rounded. Floating-point error gave a non-integer index for some frame
+           counts (45, 60, 90, 120, 180, 360), so a frame URL came out as
+           'undefined' (404) and the viewer sat on the loading spinner.
+           ease360.VERSION now reports 1.0.6.
    1.0.5 - sourceWidth and sourceHeight are now optional. When omitted, ease360°
            probes the first frame to read naturalWidth/naturalHeight automatically.
            If sourceWidth/sourceHeight are provided they are used directly with no
@@ -2022,7 +2027,7 @@
 			return new Ease360(el, options || {}, elWrapper);
 		}
 
-		ease360.VERSION = '1.0.5';
+		ease360.VERSION = '1.0.6';
 
 		// Expose as UMD global
 		if (typeof module === 'object' && module.exports) {

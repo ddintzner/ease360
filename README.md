@@ -2,11 +2,11 @@
 
 > A modern JS framework for silky smooth 360°s.
 
-**v1.0.5** — jQuery-free. Zero dependencies. ~32 KB minified.
+**v1.0.6** — jQuery-free. Zero dependencies. ~32 KB minified.
 
 **Docs & live examples: [ease360.dintzner.com](https://ease360.dintzner.com)**
 
-**License:** MIT &nbsp;|&nbsp; **Version:** 1.0.5 &nbsp;|&nbsp; [Docs & Demos](https://ease360.dintzner.com) &nbsp;|&nbsp; [Changelog](CHANGELOG.md)
+**License:** MIT &nbsp;|&nbsp; **Version:** 1.0.6 &nbsp;|&nbsp; [Docs & Demos](https://ease360.dintzner.com) &nbsp;|&nbsp; [Changelog](CHANGELOG.md)
 
 ---
 
@@ -59,7 +59,7 @@ See [CHANGELOG.md](CHANGELOG.md) for full release history.
 
 ```html
 <!-- 1. Include the script -->
-<script src="ease360-1.0.5.js"></script>
+<script src="ease360-1.0.6.js"></script>
 
 <!-- 2. Add a container -->
 <div id="viewer"></div>
@@ -81,7 +81,7 @@ See [CHANGELOG.md](CHANGELOG.md) for full release history.
 ### Script tag (CDN / download)
 
 ```html
-<script src="ease360-1.0.5.min.js"></script>
+<script src="ease360-1.0.6.min.js"></script>
 ```
 
 ### npm
@@ -102,7 +102,7 @@ If your project already uses the jQuery plugin pattern and you want to upgrade i
 
 ```html
 <!-- New core — no jQuery required -->
-<script src="ease360-1.0.5.js"></script>
+<script src="ease360-1.0.6.js"></script>
 
 <!-- Your existing jQuery -->
 <script src="jquery.min.js"></script>
@@ -281,8 +281,8 @@ ease360° works in all modern browsers.
 
 | File | Description |
 |---|---|
-| `ease360-1.0.5.js` | Full annotated source |
-| `ease360-1.0.5.min.js` | Minified production build |
+| `ease360-1.0.6.js` | Full annotated source |
+| `ease360-1.0.6.min.js` | Minified production build |
 | `ease360.css` | Required styles for the viewer (`touch-action`, `user-select`) |
 | `ease360.cdn.js` | Optional CDN helper (Cloudinary URL builder) |
 | `archive/` | Previous builds (0.x and 1.0.0) |

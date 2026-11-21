@@ -4,9 +4,11 @@ All notable changes to ease360° are documented here.
 
 ---
 
-## [Unreleased]
+## [1.0.6] — 2026-11-21
 
-- Fixed a frame-lookup rounding bug: `(angle / 360) * totalframes` is now rounded. Floating-point error gave a non-integer index for some frame counts (45, 60, 90, 120, 180, 360), so a frame URL came out as `undefined` (404) and the viewer sat on the loading spinner. Found while building ease360 Builder.
+- Fixed a frame-lookup rounding bug: `(angle / 360) * totalframes` is now rounded. Floating-point error gave a non-integer index for some frame counts (45, 60, 90, 120, 180, 360), so a frame URL came out as `undefined` (404) and the viewer sat on the loading spinner.
+- `ease360.VERSION` reports `1.0.6`.
+- Files: `ease360-1.0.6.js` and `ease360-1.0.6.min.js` replace the 1.0.5 builds.
 
 ---
 
