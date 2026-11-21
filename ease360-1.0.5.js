@@ -777,7 +777,7 @@
 					//load current frame 
 					let i = _.timeline.angle
 
-					let n = (i / 360) * _.totalframes;
+					let n = Math.round((i / 360) * _.totalframes);
 					let filename = _.load.frames[n];
 
 					_.images[i].width = _.width * _.states.factoring;
@@ -891,7 +891,7 @@
 				//cycle thru 360 -- only add images where we have the correct angle
  
 				//var n =    Math.floor(i/_.currentSet.increment);
-				var n = (i / 360) * _.totalframes;
+				var n = Math.round((i / 360) * _.totalframes);
 				var filename = _.load.frames[n];
 
 				_.images[i].width = _.width * _.states.factoring;
@@ -1008,7 +1008,7 @@
 				//load current frame 
 				let i = _.timeline.angle
 
-				let n = (i / 360) * _.totalframes;
+				let n = Math.round((i / 360) * _.totalframes);
 				let filename = _.load.frames[n];
 
 				_.images[i].width = _.width * _.states.factoring;

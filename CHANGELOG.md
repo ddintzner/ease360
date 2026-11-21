@@ -4,6 +4,12 @@ All notable changes to ease360° are documented here.
 
 ---
 
+## [Unreleased]
+
+- Fixed a frame-lookup rounding bug: `(angle / 360) * totalframes` is now rounded. Floating-point error gave a non-integer index for some frame counts (45, 60, 90, 120, 180, 360), so a frame URL came out as `undefined` (404) and the viewer sat on the loading spinner. Found while building ease360 Builder.
+
+---
+
 ## [1.0.5] — 2026-11-06
 
 - **The 1.0.0 build did not contain several features documented under 1.0.0.** `ease360-1.0.0.js` (GitHub, and npm 1.0.0 and 1.0.2) still used the legacy mouse and touch handlers and read only `width` / `height`. 1.0.5 is the build that implements them:
