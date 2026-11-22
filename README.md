@@ -256,14 +256,14 @@ Serve a right-sized frame set for each breakpoint. A 1920px frame drawn into a ~
 
 ```js
 responsive: [
-  // Tablet / desktop
-  { breakpoint: 100000, frames: framesFull,   sourceWidth: 1920, sourceHeight: 1080, flex: { w: true } },
+  // Tablet / desktop — 1920px and wider also gets this set (no oversized catch-all needed)
+  { breakpoint: 1920,   frames: framesFull,   sourceWidth: 1920, sourceHeight: 1080, flex: { w: true } },
   // Mobile — 640px viewport and below
   { breakpoint: 641,    frames: frames640w,   sourceWidth: 640,  sourceHeight: 360,  flex: { w: true } }
 ]
 ```
 
-- **Order:** list sets large to small. ease360° activates the last entry whose `breakpoint` is above the viewport width, so `641` means "640px and below". The initial load compares with `<` and a later resize with `<=`; the two differ only at a viewport of exactly the breakpoint value.
+- **Order:** list sets large to small. ease360° activates the last entry whose `breakpoint` is above the viewport width, so `641` means "640px and below". The initial load compares with `<` and a later resize with `<=`; the two differ only at a viewport of exactly the breakpoint value. **No catch-all breakpoint:** if no entry matches (a viewport wider than the first breakpoint), the first entry is used, so make it your largest set at its true width (for example `1920`), not `100000`.
 - **Sizes:** `sourceWidth` / `sourceHeight` must match the delivered size of that set, not the master.
 - **Frame counts may differ per set** (for example 72 on desktop, 36 on mobile). Each count must divide evenly into 360. On a breakpoint swap the angle snaps to the nearest frame the new set has.
 - **Retina:** `framesHighDPI` is no longer used. Ship the right-sized set instead.
