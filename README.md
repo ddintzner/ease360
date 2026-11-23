@@ -2,7 +2,7 @@
 
 > A modern JS framework for silky smooth 360°s.
 
-**v1.0.7** — jQuery-free. Zero dependencies. ~32 KB minified.
+**v1.0.7** — jQuery-free. Zero dependencies. ~41 KB minified (~10 KB gzipped).
 
 **Docs & live examples: [ease360.dintzner.com](https://ease360.dintzner.com)**
 
