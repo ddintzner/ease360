@@ -1,12 +1,12 @@
 /*!
- * ease360° jQuery Legacy Shim v1.0.5
- * Maps the jQuery plugin API ($('#el').ease360(options)) to ease360 v1.0.5.
+ * ease360° jQuery Legacy Shim v1.0.7
+ * Maps the jQuery plugin API ($('#el').ease360(options)) to ease360 v1.0.7.
  *
  * Usage:
- *   Include AFTER both ease360-1.0.5.js AND jQuery.
+ *   Include AFTER both ease360-1.0.7.js AND jQuery.
  *
  *   <!-- new core (no jQuery needed) -->
- *   <script src="ease360-1.0.5.js"></script>
+ *   <script src="ease360-1.0.7.js"></script>
  *
  *   <!-- optional shim only if you have legacy code using the jQuery pattern -->
  *   <script src="jquery.js"></script>
@@ -18,13 +18,16 @@
  *   viewer.angleTo(180, 0.5);
  *
  * Changelog:
+ *   1.0.7 - Aligned with ease360 v1.0.7. Forwards isLoading() and isLocked()
+ *           (they return booleans, so they are not chained). CommonJS require()
+ *           now points to ./ease360-1.0.7.
  *   1.0.5 - Aligned with ease360 v1.0.5.
  *           Fixed method forwarding: 'changeFrame' → 'changeFrames' (the name the
  *           core actually exposes), and added 'angleSet' and 'stopAllIntervals'.
  *           Fixed chaining: core methods return undefined, so the proxy now returns
  *           itself for any call that doesn't return a value (angle() with no
  *           argument still returns the current angle).
- *           CommonJS require() now points to ../ease360-1.0.5 (this shim lives in archive/).
+ *           CommonJS require() now points to ./ease360-1.0.6.
  *   1.0.0 - Initial release.
  *
  * Copyright (c) 2016–2026 Derek Dintzner
@@ -36,7 +39,7 @@
   if (typeof define === 'function' && define.amd) {
     define(['jquery', 'ease360'], factory);
   } else if (typeof module === 'object' && module.exports) {
-    factory(require('jquery'), require('../ease360-1.0.5'));
+    factory(require('jquery'), require('./ease360-1.0.7'));
   } else {
     factory(window.jQuery || window.$, window.ease360);
   }
@@ -48,7 +51,7 @@
     return;
   }
   if (!ease360) {
-    throw new Error('ease360 jQuery shim: ease360 core not found. Include ease360-1.0.5.js before this shim.');
+    throw new Error('ease360 jQuery shim: ease360 core not found. Include ease360-1.0.7.js before this shim.');
   }
 
   // Store instances keyed to DOM elements via jQuery .data()
@@ -61,6 +64,7 @@
     'spinOver', 'spinOut',
     'changeFrames', 'changeFramesResponsive',
     'stopAllIntervals',
+    'isLoading', 'isLocked',
     'destroy'
   ];
 

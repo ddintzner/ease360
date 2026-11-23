@@ -2,11 +2,11 @@
 
 > A modern JS framework for silky smooth 360°s.
 
-**v1.0.6** — jQuery-free. Zero dependencies. ~32 KB minified.
+**v1.0.7** — jQuery-free. Zero dependencies. ~32 KB minified.
 
 **Docs & live examples: [ease360.dintzner.com](https://ease360.dintzner.com)**
 
-**License:** MIT &nbsp;|&nbsp; **Version:** 1.0.6 &nbsp;|&nbsp; [Docs & Demos](https://ease360.dintzner.com) &nbsp;|&nbsp; [Changelog](CHANGELOG.md)
+**License:** MIT &nbsp;|&nbsp; **Version:** 1.0.7 &nbsp;|&nbsp; [Docs & Demos](https://ease360.dintzner.com) &nbsp;|&nbsp; [Changelog](CHANGELOG.md)
 
 ---
 
@@ -59,7 +59,7 @@ See [CHANGELOG.md](CHANGELOG.md) for full release history.
 
 ```html
 <!-- 1. Include the script -->
-<script src="ease360-1.0.6.js"></script>
+<script src="ease360-1.0.7.js"></script>
 
 <!-- 2. Add a container -->
 <div id="viewer"></div>
@@ -81,7 +81,7 @@ See [CHANGELOG.md](CHANGELOG.md) for full release history.
 ### Script tag (CDN / download)
 
 ```html
-<script src="ease360-1.0.6.min.js"></script>
+<script src="ease360-1.0.7.min.js"></script>
 ```
 
 ### npm
@@ -102,7 +102,7 @@ If your project already uses the jQuery plugin pattern and you want to upgrade i
 
 ```html
 <!-- New core — no jQuery required -->
-<script src="ease360-1.0.6.js"></script>
+<script src="ease360-1.0.7.js"></script>
 
 <!-- Your existing jQuery -->
 <script src="jquery.min.js"></script>
@@ -177,7 +177,8 @@ viewer.angleTo(90, 0.5);
 | `backgroundOffsetY` | float | `0` | Y offset in px when `backgroundSize` is cover |
 | `preloadSmart` | boolean | `false` | Loads every other frame first (50%), remaining frames load on first drag. |
 | `flex` | object | `{}` | Flexible container support. `{ w: true }` — percentage-width container. `{ h: true }` — percentage-height container. Can combine: `{ w: true, h: true }`. |
-| `dragDirection` | enum | `'left-right'` | `'left-right'` \| `'up-down'` \| `'all'` \| `'none'`. Previously `touchdirection`, `dragAxis` (v0.x). |
+| `dragDirection` | enum | `'left-right'` | `'left-right'` \| `'up-down'` \| `'all'` \| `'none'`. Previously `touchdirection`, `dragAxis` (v0.x). The viewer sets `touch-action` to match (`pan-y`, `pan-x` or `none`) so the other axis still scrolls the page. |
+| `dragThreshold` | int | `4` | Pixels the pointer must move before the drag axis is locked. |
 | `responsive` | array | — | Breakpoint array — see Responsive section |
 | `startAngle` | int | `0` | Initial angle on load (0–359) |
 | `damping` | float | `0.95` | Physics friction: `0.85` (firm) → `0.98` (fluid). `1.0` = perpetual spin |
@@ -191,15 +192,92 @@ viewer.angleTo(90, 0.5);
 |---|---|---|
 | `angle()` | — | Returns current angle (0–359). Getter. |
 | `angle(value)` | int | Sets angle instantly. Setter. |
-| `angleTo(angle, duration?)` | int, float | Animates to angle. Duration in seconds (default `1.0`). |
-| `angleStep(angle)` | int | Jumps to angle without animation. |
+| `angleTo(angle, duration?)` | int, float | Animates to angle by the shortest arc (350° → 10° turns forward 20°). Duration in seconds. |
+| `angleTo(angle, options)` | int, object | `options`: `duration` (s), `speed` (degrees per second; time scales with distance, overrides `duration`), `minDuration` (s, default `0.35`, floor for `speed`), `shortest` (default `true`; `false` = plain `angle - current`, for multi-turn spins), `loadFrames` (default `true`; loads the remaining frames first). Ignored while another `angleTo` is running. |
+| `angleStep(degrees)` | int | Turns by a number of degrees (negative = backwards) without animation, cancelling any running `angleTo`. |
 | `spinOver(speed?)` | float | Continuous spin. Positive or negative speed. Default `1.0`. |
 | `spinOut()` | — | Cancels `spinOver()`. |
-| `changeFrames(frames)` | array | Swaps frame set. Waits for engine stop. |
-| `changeFramesResponsive(setsArray)` | array of arrays | Swaps responsive frame sets. Order must match init `responsive` array. |
+| `changeFrames(frames, options?)` | array, object | Swaps the frame set of a viewer set up with `frames`. Waits for the engine to stop, then loads the new frames behind the current picture. `options`: `fade` (`true` = 500ms, or milliseconds: holds the old picture as a snapshot and fades it out once the new set is loaded and drawn), `minLoadTime` (ms the old picture and loading state stay up at least), `loadStart(instance)`, `loaded(instance)` (called when the first set of the new frames is in) and `timeout` (ms, default `15000`; a set not loaded by then counts as failed), `error(info, instance)` (a frame failed to load or the timeout hit: `info.reason` is `"load"` or `"timeout"`), `revert` (default `true`: on failure the previous frames are put back behind the old picture), `reverted(instance)` and `lock` (default `true`: drag, `angleTo`, `angleStep` and `spinOver` are ignored while the new set loads). |
+| `changeFramesResponsive(sets, sizes?, options?)` | array of arrays, array, object | Swaps the frame sets of a viewer set up with `responsive`, one set per breakpoint, in the same order. Waits for the engine to stop, then loads the new frames behind the current picture. `sizes`: optional `[{ sourceWidth, sourceHeight }, …]` for sets of a different delivered size. Same `options` as `changeFrames`. |
+| `isLoading()` | — | `true` from the start of a frame swap until the first set of the new frames is loaded. The state callback reports `"loading"` then `"loaded"` (`"error"` on failure). |
+| `isLocked()` | — | `true` while a swap is loading and the viewer is locked (see `lock`). |
 | `destroy()` | — | Removes canvas, unbinds all events, cancels animation. |
 
 ---
+
+## Changing frames
+
+`changeFrames()` and `changeFramesResponsive()` take the same `options` object as their last argument and behave the same way. Without options the frames swap straight away. With options, ease360° holds the current picture as a snapshot over the viewer, loads the new set behind it, and fades the snapshot out only once the new frames are loaded and drawn. See [Ex 4](https://ease360.dintzner.com/examples/ex4.php) for a working color picker.
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `fade` | boolean \| number | `false` | `true` fades the old picture out over 500ms; a number sets the milliseconds. Skipped for visitors who ask for reduced motion. |
+| `minLoadTime` | number (ms) | `0` | Keeps the old picture and the loading state up for at least this long, so a fast connection doesn't flash a spinner. |
+| `loadStart` | function | — | Called with the instance when the swap begins. |
+| `loaded` | function | — | Called with the instance when the first set of the new frames is loaded and drawn, as the fade starts. |
+| `timeout` | number (ms) | `15000` | A set that has not loaded by then counts as failed. |
+| `error` | function | — | Called with `(info, instance)` when the swap fails. `info.reason` is `"load"` (a frame failed; `info.file` says which) or `"timeout"`. `info.reverting` is `true` when the previous frames are being put back; `info.revertFailed` is `true` if they would not load either. |
+| `revert` | boolean | `true` | On failure, put the previous frames back behind the old picture. `false` leaves it to `error`, for instance to retry. |
+| `reverted` | function | — | Called with the instance once the previous frames are back. |
+| `lock` | boolean | `true` | Ignore drag, `angleTo()`, `angleStep()` and `spinOver()` while the new set loads. `false` leaves the viewer live. |
+
+`changeFramesResponsive()` also takes `sizes`, an optional array of `{ sourceWidth, sourceHeight }`, one per breakpoint, for sets delivered at a different size than the original. The status callback reports `"loading"`, then `"loaded"` (or `"error"`).
+
+### The loading flag and the lock
+
+From the moment a swap starts until the new set is loaded, `viewer.isLoading()` returns `true` (it reads `states.loading`). The status callback reports `"loading"` and then `"loaded"`, so a UI can disable controls or show a spinner without any options at all. This works with or without `fade`.
+
+While the flag is up the viewer is **locked**: a swap stops any spin that is coasting or any `angleTo()` tween, and drag, `angleTo()`, `angleStep()` and `spinOver()` are ignored until the new set is in. Otherwise a visitor could spin through frames that are half old and half new. `viewer.isLocked()` reports it, and `lock: false` leaves the viewer live during the swap.
+
+A swap raises `progress` from 0 to 1 like the first load did, so if your `progressUpdate` hides the first-load spinner, return early while `isLoading()` is true and use the `loaded` option for the swap instead.
+
+### Failed loads
+
+A frame that 404s, or a set that is still not in after `timeout` milliseconds (default 15000), fails the swap. By default ease360° then puts the **previous frames back** behind the old picture, which stays up the whole time, so the visitor never sees a half-loaded set. Your `error` callback is called first, to update the UI, and `reverted` is called once the old frames are back.
+
+```js
+viewer.changeFrames(frames, {
+  fade: 500,
+  timeout: 8000,                  // give up after 8s
+  error: (info) => {
+    // info.reason: 'load' (info.file is the frame that failed) or 'timeout'
+    // info.reverting: true when the previous frames are being put back
+    // info.revertFailed: true if even the previous frames would not load
+    showMessage('Could not load that color.');
+  },
+  reverted: () => hideSpinner()
+});
+```
+
+With `revert: false` the old frames are not put back: the old picture fades out and `error` decides what happens next, for instance calling `changeFrames()` again to retry. With `preloadSmart`, only the first half of the new set is checked for failures; frames in the second half that fail later are not reported.
+
+### Example: color swatches
+
+Keep a map of which sets have been loaded at least once. The first visit shows the spinner and holds for a minimum time; a set loaded before comes from the browser cache, so it just fades. If a swap fails, switch the swatch back.
+
+```js
+const changeVariant = (key) => {
+  const previous = activeColor;
+  selectColor(key);                       // marks the swatch active
+
+  const firstVisit = !colorLoaded[key];
+  colorLoaded[key] = true;
+
+  viewer.changeFrames(variantFrames[key], {
+    fade: 500,
+    minLoadTime: firstVisit ? 1150 : 0,
+    loadStart: firstVisit ? showSpinner : undefined,
+    loaded: hideSpinner,
+    error: () => {                        // the previous frames are put back for you
+      colorLoaded[key] = false;
+      selectColor(previous);
+      hideSpinner();
+    }
+  });
+};
+```
+
+For a viewer set up with `responsive`, call `changeFramesResponsive([...setsInBreakpointOrder], sizes?, options)` the same way. See [Ex 4](https://ease360.dintzner.com/examples/ex4.php) for the full working page.
 
 ## Properties
 
@@ -281,10 +359,10 @@ ease360° works in all modern browsers.
 
 | File | Description |
 |---|---|
-| `ease360-1.0.6.js` | Full annotated source |
-| `ease360-1.0.6.min.js` | Minified production build |
+| `ease360-1.0.7.js` | Full annotated source |
+| `ease360-1.0.7.min.js` | Minified production build |
 | `ease360.css` | Required styles for the viewer (`touch-action`, `user-select`) |
-| `ease360.cdn.js` | Optional CDN helper (Cloudinary URL builder) |
+| `ease360.cdn.js` | Optional CDN helper (Cloudinary URL builder), v1.0.2 |
 | `archive/` | Previous builds (0.x and 1.0.0) |
 | `ease360.jquery.js` *(archive)* | Legacy jQuery plugin shim — see `/archive/` |
 | `ease360.jquery.min.js` *(archive)* | Legacy jQuery plugin shim — minified — see `/archive/` |

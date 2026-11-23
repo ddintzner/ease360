@@ -1,11 +1,15 @@
 /*!
- * ease360° CDN Helper v1.0.1
+ * ease360° CDN Helper v1.0.2
  * Cloudinary image sequencer utility for ease360°.
  * https://github.com/ddintzner/ease360
  *
  * Generates Cloudinary-transformed frame URLs for use with ease360°
  * responsive breakpoint sets. Supports width-only, width+height, and
  * crop modes per breakpoint for full aspect ratio control.
+ *
+ * 1.0.2 — New `separator` option (default '-') for public IDs such as
+ *          2027_EGV70_ADV_AWD_CeresBlue_72f_000. `startFrame: 0` now works (it
+ *          used to fall back to 1).
  *
  * Copyright (c) 2016–2026 Derek Dintzner
  * Licensed under the MIT license.
@@ -79,7 +83,7 @@
    * Generate an array of Cloudinary URLs for a numbered frame sequence.
    *
    * Frame filenames follow the pattern:
-   *   {prefix}-{frame}.{ext}
+   *   {prefix}{separator}{frame}.{ext}
    * e.g. G090-LondonGray-lg-001.jpg through G090-LondonGray-lg-036.jpg
    *
    * @param  {object} options
@@ -88,7 +92,8 @@
    *   @param  {number}  options.frames      Total number of frames (default: 36)
    *   @param  {number}  options.pad         Zero-pad frame number to N digits (default: 3)
    *   @param  {string}  options.ext         File extension (default: 'jpg')
-   *   @param  {number}  options.startFrame  First frame number (default: 1)
+   *   @param  {number}  options.startFrame  First frame number (default: 1; 0 is allowed)
+   *   @param  {string}  options.separator   Text between prefix and frame number (default: '-'), e.g. '_'
    *   @param  {number}  options.width       Resize width in px
    *   @param  {number}  options.height      Resize height in px (optional — omit to scale proportionally)
    *   @param  {string}  options.crop        Crop mode when both width+height set: 'fill' | 'fit' | 'pad' | 'scale' (default: 'fill')
@@ -108,7 +113,8 @@
     var total      = o.frames     || 36;
     var pad        = o.pad        || 3;
     var ext        = o.ext        || 'jpg';
-    var startFrame = o.startFrame || 1;
+    var startFrame = o.startFrame !== undefined ? o.startFrame : 1;
+    var separator  = o.separator  !== undefined ? o.separator  : '-';
     var folder     = o.folder     ? o.folder.replace(/\/$/, '') + '/' : '';
 
     var urls = [];
@@ -116,7 +122,7 @@
     for (var i = 0; i < total; i++) {
       var frameNum = startFrame + i;
       var padded   = String(frameNum).padStart(pad, '0');
-      var publicId = folder + o.prefix + '-' + padded + '.' + ext;
+      var publicId = folder + o.prefix + separator + padded + '.' + ext;
 
       urls.push(buildUrl(o.cloudName, publicId, {
         width:   o.width,
@@ -229,7 +235,7 @@
     responsive:      responsive,
     responsiveHiDPI: responsiveHiDPI,
     buildUrl:        buildUrl,
-    VERSION:         '1.0.1'
+    VERSION:         '1.0.2'
   };
 
 }));

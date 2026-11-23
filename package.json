@@ -1,21 +1,21 @@
 {
   "name": "ease360",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A physics-based 360° image spin framework. Vanilla JS, zero dependencies.",
-  "main": "ease360-1.0.6.min.js",
-  "module": "ease360-1.0.6.js",
+  "main": "ease360-1.0.7.min.js",
+  "module": "ease360-1.0.7.js",
   "exports": {
     ".": {
-      "import": "./ease360-1.0.6.js",
-      "require": "./ease360-1.0.6.min.js",
-      "default": "./ease360-1.0.6.min.js"
+      "import": "./ease360-1.0.7.js",
+      "require": "./ease360-1.0.7.min.js",
+      "default": "./ease360-1.0.7.min.js"
     },
     "./css": "./ease360.css",
     "./cdn": "./ease360.cdn.js"
   },
   "files": [
-    "ease360-1.0.6.js",
-    "ease360-1.0.6.min.js",
+    "ease360-1.0.7.js",
+    "ease360-1.0.7.min.js",
     "ease360.css",
     "ease360.cdn.js",
     "README.md",

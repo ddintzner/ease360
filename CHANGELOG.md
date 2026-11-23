@@ -4,6 +4,29 @@ All notable changes to ease360° are documented here.
 
 ---
 
+## [1.0.7] — 2026-11-22
+
+- **`angleTo()` takes the shortest arc by default.** 350° → 10° turns forward 20° instead of back 340°. Pass `{ shortest: false }` for the old linear behaviour or a multi-turn spin.
+- **`angleTo(angle, options)`:** `duration`, `speed` (degrees per second, so the time scales with the distance), `minDuration`, `shortest` and `loadFrames`. The `angleTo(angle, seconds)` form still works.
+- `angleTo()` and `angleStep()` load the remaining frames first (the second half when `preloadSmart` is on). `loadFrames: false` opts out. New method `loadRemaining()`.
+- Fixed `startMove()` checking `states.activeTween` instead of `timeline.activeTween`. A drag now stops a running `angleTo()` tween instead of fighting it (flicker). `angleStep()` also cancels a running tween.
+- `dragDirection: 'all'` follows the dominant axis of each move. Both branches used the signed x delta before.
+- New `dragThreshold` option (default 4px) before the drag axis is locked.
+- The viewer sets `touch-action` from `dragDirection` (`pan-y` for `'left-right'`, `pan-x` for `'up-down'`, otherwise `none`), so vertical swipes scroll the page. `ease360.css` defaults to `pan-y`.
+- The window resize listener is registered once and `destroy()` now removes it (it used a new anonymous function, so it was never removed).
+- `changeFramesResponsive(sets, sizes)` accepts optional per-breakpoint `{ sourceWidth, sourceHeight }` for sets delivered at a different size.
+- **Frame swaps can fade.** `changeFrames(frames, options)` and `changeFramesResponsive(sets, sizes, options)` take `{ fade, minLoadTime, loadStart, loaded, timeout }`. With `fade` the current picture is held as a snapshot canvas (class `ease360-swap`) over the viewer, the new set loads behind it, and the snapshot fades out only once the first set of the new frames is loaded and drawn. A second swap mid-fade keeps what is on screen; reduced-motion visitors get a hard swap. The snapshot is a `<canvas class="ease360-swap">` at `z-index: 2`, inside the viewer: use `instance.canvas.c` for the live canvas rather than `querySelector('canvas')`, and scope your own canvas CSS with `:not(.ease360-swap)`.
+- **`changeFrames(frames, framesHighDPI)` is deprecated.** The second argument is now the options object. The old form still works, with a console deprecation warning; `framesHighDPI` will be removed in a future major version.
+- **While a swap loads the viewer is locked** (`lock`, default `true`): drag, `angleTo()`, `angleStep()` and `spinOver()` are ignored, and a coasting spin or running tween is stopped. `isLocked()` reports it.
+- **Failed loads are handled.** A frame that fails to load, or a set not loaded within `timeout` (default 15000ms), fails the swap: `error(info, instance)` is called (`info.reason` is `"load"` or `"timeout"`) and, unless `revert: false`, the previous frames are put back behind the old picture, then `reverted(instance)` is called. The status callback reports `"error"`.
+- New loading flag: `isLoading()` (`states.loading`) is true from the start of a swap until the new set is loaded, and the state callback reports `"loading"` then `"loaded"`.
+- `ease360.VERSION` reports `1.0.7`.
+- Files: `ease360-1.0.7.js` and `ease360-1.0.7.min.js` replace the 1.0.6 builds.
+- `archive/ease360.jquery.js` shim: now targets 1.0.7 (CommonJS `require('./ease360-1.0.7')`) and forwards `isLoading()` and `isLocked()`.
+- `ease360.cdn.js` 1.0.2: new `separator` option (default `'-'`) for public IDs like `2027_EGV70_ADV_AWD_CeresBlue_72f_000`, and `startFrame: 0` now works (it used to fall back to 1). Defaults are unchanged.
+
+---
+
 ## [1.0.6] — 2026-11-21
 
 - Fixed a frame-lookup rounding bug: `(angle / 360) * totalframes` is now rounded. Floating-point error gave a non-integer index for some frame counts (45, 60, 90, 120, 180, 360), so a frame URL came out as `undefined` (404) and the viewer sat on the loading spinner.
